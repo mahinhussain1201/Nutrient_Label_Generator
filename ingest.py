@@ -69,10 +69,10 @@ print("✅ JSON ingestion completed successfully!")
 
 
 
-# nutrition_db=# SELECT
+# nutrition_db= SELECT
 #   data->>'orig_source_name' AS nutrient,
 #   data->>'standard_content' AS value,
 #   data->>'orig_unit' AS unit
 # FROM food_json
 # WHERE LOWER(data->>'orig_food_common_name') = 'carrot'
-#   AND data->>'source_type' = 'Compound';
+#   AND data->>'source_type' = 'Nutrient';
