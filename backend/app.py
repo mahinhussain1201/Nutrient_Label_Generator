@@ -4,8 +4,8 @@ import psycopg2
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
-from typing import Dict, List, Optional, Union
-
+from typing import Dict, List, Optional, Union, Any
+import json
 # Load environment variables
 load_dotenv()
 

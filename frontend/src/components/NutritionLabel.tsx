@@ -1,22 +1,38 @@
 import React from 'react';
-import type { Nutrient, NutritionResponse } from '../types/nutrition';
+import type { NutritionData, MultipleNutritionResponse } from '../utils/api';
 
 interface NutritionLabelProps {
-  data: NutritionResponse;
+  data: NutritionData | MultipleNutritionResponse;
 }
 
+type Nutrient = {
+  name: string;
+  amount: number;
+  unit: string;
+  per_100g?: number;
+};
+
 const NutritionLabel: React.FC<NutritionLabelProps> = ({ data }) => {
+  const isMultiple = 'ingredients' in data && Array.isArray(data.ingredients);
+
   const getServingInfo = () => {
-    if (data.food) {
-      return `1 serving (${data.food})`;
-    } else if (data.ingredients?.length) {
-      return `Combined serving (${data.ingredients.join(' + ')})`;
+    if (!isMultiple) {
+      return `1 serving (${data.ingredient} - ${data.quantity_g}g)`;
+    } else {
+      const ingredients = data.ingredients.map(i => `${i.ingredient} (${i.quantity_g}g)`);
+      return `Combined serving (${ingredients.join(' + ')})`;
     }
-    return 'Serving size';
   };
 
-  const getNutrient = (name: string): Nutrient | undefined => {
-    return data.nutrients?.find(n => n.name.toLowerCase().includes(name.toLowerCase()));
+  const getNutrient = (name: string, nutrients: Nutrient[]): Nutrient | undefined => {
+    return nutrients.find(n => n.name.toLowerCase().includes(name.toLowerCase()));
+  };
+
+  const getNutrientsToDisplay = () => {
+    if (isMultiple) {
+      return data.total_nutrients || [];
+    }
+    return data.nutrients || [];
   };
 
   const calories = getNutrient('energy') || getNutrient('calories');
@@ -30,57 +46,22 @@ const NutritionLabel: React.FC<NutritionLabelProps> = ({ data }) => {
   const sugars = getNutrient('sugars');
   const protein = getNutrient('protein');
   const vitaminD = getNutrient('vitamin d');
-  const calcium = getNutrient('calcium');
-  const iron = getNutrient('iron');
-  const potassium = getNutrient('potassium');
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-lg max-w-md mx-auto w-full border-2 border-black">
-      <div className="border-b-8 border-black pb-2 mb-4">
-        <h2 className="text-2xl font-bold text-center mb-1">Nutrition Facts</h2>
-        <p className="text-center text-sm">{getServingInfo()}</p>
-      </div>
+      <div className="nutrition-facts">
+        <header className="nutrition-header">
+          <h2>Nutrition Facts</h2>
+          <div className="serving-size">{getServingInfo()}</div>
+        </header>
 
-      <div className="border-b border-black pb-2 mb-3">
-        <p className="text-right text-xs">Amount per serving</p>
-      </div>
+        <div className="divider"></div>
 
-      <div className="border-b-8 border-black pb-2 mb-3">
-        <div className="flex justify-between font-bold">
-          <span>Calories</span>
-          <span>{calories ? Math.round(calories.amount) : '0'}</span>
-        </div>
-      </div>
-
-      <div className="text-right text-xs mb-1">% Daily Value*</div>
-
-      <div className="mb-1">
-        <div className="flex justify-between">
-          <span className="font-bold">Total Fat</span>
-          <span>{fat ? `${fat.amount.toFixed(1)}${fat.unit}` : '0g'}</span>
-        </div>
-        {saturatedFat && (
-          <div className="ml-4">
-            <span className="ml-2">Saturated Fat</span>
-            <span className="float-right">
-              {saturatedFat.amount.toFixed(1)}{saturatedFat.unit}
-            </span>
+        <div className="calories">
+          <div className="label">Calories</div>
+          <div className="value">
+            {calories ? Math.round(calories.amount) : '0'}
           </div>
-        )}
-        {transFat && (
-          <div className="ml-4">
-            <span className="ml-2">Trans Fat</span>
-            <span className="float-right">
-              {transFat.amount.toFixed(1)}{transFat.unit}
-            </span>
-          </div>
-        )}
-      </div>
-
-      <div className="mb-1">
-        <div className="flex justify-between">
-          <span className="font-bold">Cholesterol</span>
-          <span>{cholesterol ? `${cholesterol.amount.toFixed(0)}${cholesterol.unit}` : '0mg'}</span>
         </div>
       </div>
 
