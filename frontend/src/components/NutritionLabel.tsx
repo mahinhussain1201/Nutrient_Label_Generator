@@ -17,7 +17,10 @@ const NutritionLabel: React.FC<NutritionLabelProps> = ({ data }) => {
 
   const getServingInfo = () => {
     if (!isMultiple) {
-      return `1 serving (${data.ingredient} - ${data.quantity_g}g)`;
+      if ('ingredient' in data) {
+        return `1 serving (${data.ingredient} - ${data.quantity_g}g)`;
+      }
+      return '';
     } else {
       const ingredients = data.ingredients.map(i => `${i.ingredient} (${i.quantity_g}g)`);
       return `Combined serving (${ingredients.join(' + ')})`;
@@ -34,18 +37,23 @@ const NutritionLabel: React.FC<NutritionLabelProps> = ({ data }) => {
     }
     return data.nutrients || [];
   };
+  const nutrients = getNutrientsToDisplay();
 
-  const calories = getNutrient('energy') || getNutrient('calories');
-  const fat = getNutrient('total fat');
-  const saturatedFat = getNutrient('saturated fat');
-  const transFat = getNutrient('trans fat');
-  const cholesterol = getNutrient('cholesterol');
-  const sodium = getNutrient('sodium');
-  const carbs = getNutrient('total carbohydrate') || getNutrient('carbohydrate');
-  const fiber = getNutrient('dietary fiber');
-  const sugars = getNutrient('sugars');
-  const protein = getNutrient('protein');
-  const vitaminD = getNutrient('vitamin d');
+  const calories = getNutrient('energy', nutrients) || getNutrient('calories', nutrients);
+  const fat = getNutrient('total fat', nutrients);
+  const saturatedFat = getNutrient('saturated fat', nutrients);
+  const transFat = getNutrient('trans fat', nutrients);
+  const cholesterol = getNutrient('cholesterol', nutrients);
+  const sodium = getNutrient('sodium', nutrients);
+  const carbs = getNutrient('total carbohydrate', nutrients) || getNutrient('carbohydrate', nutrients);
+  const fiber = getNutrient('dietary fiber', nutrients);
+  const sugars = getNutrient('sugars', nutrients);
+  const protein = getNutrient('protein', nutrients);
+  const vitaminD = getNutrient('vitamin d', nutrients);
+  const calcium = getNutrient('calcium', nutrients);
+  const iron = getNutrient('iron', nutrients);
+  const potassium = getNutrient('potassium', nutrients);
+
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-lg max-w-md mx-auto w-full border-2 border-black">

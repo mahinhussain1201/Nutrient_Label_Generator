@@ -12,37 +12,38 @@ const NutritionCalculator = () => {
   const [error, setError] = useState('');
 
   // Search for ingredient suggestions
-  const searchIngredients = async (query) => {
-    if (!query) {
-      setSuggestions([]);
-      return;
-    }
-    
+  const searchIngredients = async (ingredient, quantity) => {
+    if (!ingredient) return;
+  
     try {
-      const response = await axios.get('http://localhost:5000/api/ingredients/search', {
-        params: { q: query }
+      const response = await axios.get(
+        'http://localhost:5000/api/nutrition/single',
+        {
+          params: {
+            food: ingredient,
+            quantity_g: quantity
+          }
+        }
+      );
+  
+      setResults({
+        ingredients: [response.data],
+        total_nutrients: response.data.nutrients,
+        not_found: []
       });
-      setSuggestions(response.data.results || []);
-      setShowSuggestions(true);
     } catch (err) {
-      console.error('Error fetching suggestions:', err);
-      setSuggestions([]);
+      console.error('Error fetching nutrition:', err);
+      setError('Ingredient not found');
     }
-  };
+  };  
 
   // Handle input change for ingredient name
   const handleIngredientChange = (index, value) => {
     const newIngredients = [...ingredients];
     newIngredients[index].name = value;
     setIngredients(newIngredients);
-    
-    if (value.length > 2) {
-      searchIngredients(value);
-      setCurrentIngredientIndex(index);
-    } else {
-      setSuggestions([]);
-    }
   };
+  
 
   // Handle quantity change
   const handleQuantityChange = (index, value) => {
