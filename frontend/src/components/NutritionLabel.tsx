@@ -5,130 +5,102 @@ interface NutritionLabelProps {
   data: NutritionData | MultipleNutritionResponse;
 }
 
-type Nutrient = {
-  name: string;
-  amount: number;
+interface NutrientRowProps {
+  label: string;
+  value: number;
   unit: string;
-  per_100g?: number;
-};
+  isSubItem?: boolean;
+  isBold?: boolean;
+  dv?: number; // Daily Value %
+}
+
+const NutrientRow: React.FC<NutrientRowProps> = ({ label, value, unit, isSubItem = false, isBold = false, dv }) => (
+  <div className={`flex justify-between items-center py-1 border-b border-gray-300 ${isSubItem ? 'pl-4' : ''}`}>
+    <div className="flex items-baseline gap-1">
+      <span className={`${isBold ? 'font-black' : 'font-normal'} text-sm`}>{label}</span>
+      <span className="text-sm">{value}{unit}</span>
+    </div>
+    {dv !== undefined && (
+      <span className="font-bold text-sm">{dv}%</span>
+    )}
+  </div>
+);
 
 const NutritionLabel: React.FC<NutritionLabelProps> = ({ data }) => {
   const isMultiple = 'ingredients' in data && Array.isArray(data.ingredients);
 
-  const getServingInfo = () => {
-    if (!isMultiple) {
-      if ('ingredient' in data) {
-        return `1 serving (${data.ingredient} - ${data.quantity_g}g)`;
-      }
-      return '';
-    } else {
-      const ingredients = data.ingredients.map(i => `${i.ingredient} (${i.quantity_g}g)`);
-      return `Combined serving (${ingredients.join(' + ')})`;
-    }
+  // Simplified DV helpers (approximate)
+  const getDV = (amount: number, total: number) => Math.round((amount / total) * 100);
+
+  const getNutrients = () => {
+    return isMultiple ? (data as MultipleNutritionResponse).total_nutrients : (data as NutritionData).nutrients;
   };
 
-  const getNutrient = (name: string, nutrients: Nutrient[]): Nutrient | undefined => {
-    return nutrients.find(n => n.name.toLowerCase().includes(name.toLowerCase()));
-  };
+  const nutrientList = getNutrients() || [];
+  const findN = (name: string) => nutrientList.find(n => n.name.toLowerCase().includes(name.toLowerCase()));
 
-  const getNutrientsToDisplay = () => {
-    if (isMultiple) {
-      return data.total_nutrients || [];
-    }
-    return data.nutrients || [];
-  };
-  const nutrients = getNutrientsToDisplay();
-
-  const calories = getNutrient('energy', nutrients) || getNutrient('calories', nutrients);
-  const fat = getNutrient('total fat', nutrients);
-  const saturatedFat = getNutrient('saturated fat', nutrients);
-  const transFat = getNutrient('trans fat', nutrients);
-  const cholesterol = getNutrient('cholesterol', nutrients);
-  const sodium = getNutrient('sodium', nutrients);
-  const carbs = getNutrient('total carbohydrate', nutrients) || getNutrient('carbohydrate', nutrients);
-  const fiber = getNutrient('dietary fiber', nutrients);
-  const sugars = getNutrient('sugars', nutrients);
-  const protein = getNutrient('protein', nutrients);
-  const vitaminD = getNutrient('vitamin d', nutrients);
-  const calcium = getNutrient('calcium', nutrients);
-  const iron = getNutrient('iron', nutrients);
-  const potassium = getNutrient('potassium', nutrients);
-
+  const energy = findN('energy') || findN('calories');
+  const fat = findN('total lipid (fat)') || findN('total fat');
+  const satFat = findN('saturated');
+  const transFat = findN('trans');
+  const chol = findN('cholesterol');
+  const sodium = findN('sodium');
+  const carbs = findN('carbohydrate');
+  const fiber = findN('fiber');
+  const sugars = findN('sugar');
+  const protein = findN('protein');
+  const vitD = findN('vitamin d');
+  const calc = findN('calcium');
+  const iron = findN('iron');
+  const potassium = findN('potassium');
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-lg max-w-md mx-auto w-full border-2 border-black">
-      <div className="nutrition-facts">
-        <header className="nutrition-header">
-          <h2>Nutrition Facts</h2>
-          <div className="serving-size">{getServingInfo()}</div>
-        </header>
+    <div className="w-full max-w-sm mx-auto bg-white border border-slate-200 p-6 shadow-xl font-sans text-slate-900 transition-all duration-300 hover:shadow-2xl rounded-sm">
+      <h1 className="text-4xl font-black border-b-[10px] border-black pb-2 leading-none">Nutrition Facts</h1>
+      
+      <div className="border-b-[4px] border-black py-2">
 
-        <div className="divider"></div>
-
-        <div className="calories">
-          <div className="label">Calories</div>
-          <div className="value">
-            {calories ? Math.round(calories.amount) : '0'}
-          </div>
-        </div>
+        <h2 className="text-xl font-bold flex justify-between">
+          <span>Serving size</span>
+          <span>{isMultiple ? 'Recipe Total' : '100g'}</span>
+        </h2>
       </div>
 
-      <div className="mb-1">
-        <div className="flex justify-between">
-          <span className="font-bold">Sodium</span>
-          <span>{sodium ? `${sodium.amount.toFixed(0)}${sodium.unit}` : '0mg'}</span>
+      <div className="border-b-[8px] border-slate-900 py-2 flex justify-between items-end">
+        <div>
+          <h3 className="text-sm font-bold">Amount per serving</h3>
+          <span className="text-4xl font-black">Calories</span>
         </div>
+        <span className="text-5xl font-black">{energy ? Math.round(energy.amount) : 0}</span>
       </div>
 
-      <div className="mb-1">
-        <div className="flex justify-between">
-          <span className="font-bold">Total Carbohydrate</span>
-          <span>{carbs ? `${carbs.amount.toFixed(1)}${carbs.unit}` : '0g'}</span>
-        </div>
-        {fiber && (
-          <div className="ml-4">
-            <span className="ml-2">Dietary Fiber</span>
-            <span className="float-right">{fiber.amount.toFixed(1)}{fiber.unit}</span>
-          </div>
-        )}
-        {sugars && (
-          <div className="ml-4">
-            <span className="ml-2">Total Sugars</span>
-            <span className="float-right">{sugars.amount.toFixed(1)}{sugars.unit}</span>
-          </div>
-        )}
+      <div className="text-right text-xs font-bold py-1 border-b border-gray-300">% Daily Value*</div>
+
+      <div className="flex flex-col">
+        <NutrientRow label="Total Fat" value={fat ? fat.amount : 0} unit="g" isBold dv={getDV((fat?.amount || 0), 78)} />
+        <NutrientRow label="Saturated Fat" value={satFat ? satFat.amount : 0} unit="g" isSubItem dv={getDV((satFat?.amount || 0), 20)} />
+        <NutrientRow label="Trans Fat" value={transFat ? transFat.amount : 0} unit="g" isSubItem />
+        
+        <NutrientRow label="Cholesterol" value={chol ? chol.amount : 0} unit="mg" isBold dv={getDV((chol?.amount || 0), 300)} />
+        <NutrientRow label="Sodium" value={sodium ? sodium.amount : 0} unit="mg" isBold dv={getDV((sodium?.amount || 0), 2300)} />
+        
+        <NutrientRow label="Total Carbohydrate" value={carbs ? carbs.amount : 0} unit="g" isBold dv={getDV((carbs?.amount || 0), 275)} />
+        <NutrientRow label="Dietary Fiber" value={fiber ? fiber.amount : 0} unit="g" isSubItem dv={getDV((fiber?.amount || 0), 28)} />
+        <NutrientRow label="Total Sugars" value={sugars ? sugars.amount : 0} unit="g" isSubItem />
+        
+        <NutrientRow label="Protein" value={protein ? protein.amount : 0} unit="g" isBold dv={getDV((protein?.amount || 0), 50)} />
       </div>
 
-      <div className="border-b border-black pb-2 mb-1">
-        <div className="flex justify-between font-bold">
-          <span>Protein</span>
-          <span>{protein ? `${protein.amount.toFixed(1)}${protein.unit}` : '0g'}</span>
-        </div>
+      <div className="border-t-[8px] border-slate-900 mt-2">
+        <NutrientRow label="Vitamin D" value={vitD ? vitD.amount : 0} unit="ug" dv={getDV((vitD?.amount || 0), 20)} />
+        <NutrientRow label="Calcium" value={calc ? calc.amount : 0} unit="mg" dv={getDV((calc?.amount || 0), 1300)} />
+        <NutrientRow label="Iron" value={iron ? iron.amount : 0} unit="mg" dv={getDV((iron?.amount || 0), 18)} />
+        <NutrientRow label="Potassium" value={potassium ? potassium.amount : 0} unit="mg" dv={getDV((potassium?.amount || 0), 4700)} />
       </div>
 
-      <div className="border-b-4 border-black pb-2 mb-1">
-        <div className="flex justify-between">
-          <span>Vitamin D</span>
-          <span>{vitaminD ? `${vitaminD.amount.toFixed(1)}${vitaminD.unit}` : '0mcg'}</span>
-        </div>
-        <div className="flex justify-between">
-          <span>Calcium</span>
-          <span>{calcium ? `${calcium.amount.toFixed(0)}${calcium.unit}` : '0mg'}</span>
-        </div>
-        <div className="flex justify-between">
-          <span>Iron</span>
-          <span>{iron ? `${iron.amount.toFixed(1)}${iron.unit}` : '0mg'}</span>
-        </div>
-        <div className="flex justify-between">
-          <span>Potassium</span>
-          <span>{potassium ? `${potassium.amount.toFixed(0)}${potassium.unit}` : '0mg'}</span>
-        </div>
+      <div className="mt-4 pt-2 border-t border-gray-400 text-[10px] leading-tight text-gray-600">
+        * The % Daily Value (DV) tells you how much a nutrient in a serving of food contributes to a daily diet. 2,000 calories a day is used for general nutrition advice.
       </div>
-
-      <p className="text-xs mt-2">
-        * The % Daily Value tells you how much a nutrient in a serving of food contributes to a daily diet.
-        2,000 calories a day is used for general nutrition advice.
-      </p>
     </div>
   );
 };
