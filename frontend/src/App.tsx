@@ -19,7 +19,7 @@ function App() {
 
   const handleSearch = async (query: string) => {
     if (!query.trim()) return;
-    
+
     setIsLoading(true);
     setError(null);
     setNutritionData(null);

@@ -47,17 +47,11 @@ def get_nutrition_for_ingredient(ingredient_name: str, quantity_g: float = 100.0
                 (data->>'standard_content')::float AS value_per_100g,
                 data->>'orig_unit' AS unit
             FROM food_json
-            WHERE LOWER(data->>'orig_food_common_name') ILIKE %s
-            AND data->>'source_type' = 'Nutrient'
-            AND data->>'orig_source_name' IN (
-                'Energy', 'Protein', 'Total lipid (fat)', 'Carbohydrate, by difference',
-                'Fiber, total dietary', 'Sugars, total', 'Calcium, Ca', 'Iron, Fe',
-                'Sodium, Na', 'Vitamin C, total ascorbic acid', 'Cholesterol',
-                'Fatty acids, total saturated', 'Fatty acids, total trans'
-            )
+            WHERE LOWER(data->>'orig_food_common_name') = LOWER(%s)
+            AND data->>'source_type' IN ('Nutrient', 'Compound')
             """
             app.logger.info(f"Searching for ingredient: {ingredient_name}")
-            cur.execute(query, (f"%{ingredient_name}%",))
+            cur.execute(query, (ingredient_name,))
             results = cur.fetchall()
             
             if not results:
@@ -67,7 +61,7 @@ def get_nutrition_for_ingredient(ingredient_name: str, quantity_g: float = 100.0
             nutrients = []
             for row in results:
                 nutrient_name = row[0]
-                value_per_100g = float(row[1])
+                value_per_100g = float(row[1]) if row[1] is not None else 0.0
                 unit = row[2]
                 
                 # Calculate value for the given quantity
@@ -202,4 +196,4 @@ def get_multiple_nutrition():
             conn.close()
                      
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5001)
+    app.run(debug=True, host='0.0.0.0', port=5000)
