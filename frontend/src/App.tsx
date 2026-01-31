@@ -25,18 +25,14 @@ function App() {
     setNutritionData(null);
     
     try {
-      let data;
-      // Heuristic: if contains comma, treat as multiple
-      if (query.includes(',')) {
-        const ingredients = query.split(',').map(i => ({
-          name: i.trim(),
-          quantity_g: 100 
-        })).filter(i => i.name);
-        data = await searchMultipleIngredients(ingredients);
-      } else {
-        data = await searchNutrition(query, 100);
-      }
+      // Treat input as a single ingredient with default 100g quantity
+      // This matches the recipe builder output format
+      const ingredients = [{
+        name: query.trim(),
+        quantity_g: 100 
+      }];
       
+      const data = await searchMultipleIngredients(ingredients);
       setNutritionData(data);
       
       setSearchHistory(prev => {
