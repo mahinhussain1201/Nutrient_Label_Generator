@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
-import { 
-  searchNutrition, 
-  searchMultipleIngredients, 
-  type NutritionData, 
+import {
+  searchMultipleIngredients,
+  type NutritionData,
   type MultipleNutritionResponse
 } from './utils/api';
 import SearchBar from './components/SearchBar';
@@ -16,29 +15,17 @@ function App() {
   const [error, setError] = useState<string | null>(null);
   const [nutritionData, setNutritionData] = useState<NutritionData | MultipleNutritionResponse | null>(null);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
+  const [hoveredHistory, setHoveredHistory] = useState<number | null>(null);
 
   const handleSearch = async (query: string) => {
     if (!query.trim()) return;
-
     setIsLoading(true);
     setError(null);
     setNutritionData(null);
-    
     try {
-      // Treat input as a single ingredient with default 100g quantity
-      // This matches the recipe builder output format
-      const ingredients = [{
-        name: query.trim(),
-        quantity_g: 100 
-      }];
-      
-      const data = await searchMultipleIngredients(ingredients);
+      const data = await searchMultipleIngredients([{ name: query.trim(), quantity_g: 100 }]);
       setNutritionData(data);
-      
-      setSearchHistory(prev => {
-        const newHistory = [query, ...prev.filter(item => item !== query)].slice(0, 5);
-        return newHistory;
-      });
+      setSearchHistory(prev => [query, ...prev.filter(i => i !== query)].slice(0, 5));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -47,110 +34,182 @@ function App() {
   };
 
   useEffect(() => {
-    const savedHistory = localStorage.getItem('nutritionSearchHistory');
-    if (savedHistory) {
-      try {
-        setSearchHistory(JSON.parse(savedHistory));
-      } catch (e) {
-        console.error('Failed to parse search history', e);
-      }
-    }
+    try {
+      const saved = localStorage.getItem('nutritionSearchHistory');
+      if (saved) setSearchHistory(JSON.parse(saved));
+    } catch {}
   }, []);
 
   useEffect(() => {
-    if (searchHistory.length > 0) {
+    if (searchHistory.length > 0)
       localStorage.setItem('nutritionSearchHistory', JSON.stringify(searchHistory));
-    }
   }, [searchHistory]);
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col relative">
-      <main className="flex-grow container mx-auto px-4 py-16 max-w-5xl">
-        <header className="text-center mb-16 animate-fade-in-down">
-          <h1 className="text-5xl font-bold text-slate-900 mb-4 tracking-tight">
-            Nutri<span className="text-primary-600">Calc</span>
+    <div style={{
+      fontFamily: "'Inter', system-ui, sans-serif",
+      minHeight: '100vh',
+      background: 'linear-gradient(160deg, #ecfdf5 0%, #f0fdfa 40%, #ecfeff 100%)',
+      display: 'flex', flexDirection: 'column',
+    }}>
+
+      {/* ── MAIN ── */}
+      <main style={{ flexGrow: 1, width: '100%', maxWidth: '860px', margin: '0 auto', padding: '56px 20px 40px' }}>
+
+        {/* Hero header */}
+        <header style={{ textAlign: 'center', marginBottom: '48px' }}>
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            width: '64px', height: '64px', borderRadius: '20px', marginBottom: '20px',
+            background: 'linear-gradient(135deg, #34d399, #14b8a6)',
+            fontSize: '30px', boxShadow: '0 8px 24px rgba(20,184,166,0.3)',
+          }}>🥗</div>
+          <h1 style={{ margin: '0 0 10px', fontSize: '42px', fontWeight: '900', color: '#0f172a', letterSpacing: '-0.03em', lineHeight: 1 }}>
+            Nutri<span style={{ background: 'linear-gradient(135deg, #34d399, #14b8a6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Calc</span>
           </h1>
-          <p className="text-lg text-slate-500 max-w-2xl mx-auto font-light">
-            Professional grade nutritional analysis for single items and complex recipes.
+          <p style={{ margin: 0, fontSize: '16px', color: '#94a3b8', fontWeight: '400', maxWidth: '440px', margin: '0 auto', lineHeight: 1.6 }}>
+            Professional-grade nutritional analysis for single foods and complex recipes.
           </p>
         </header>
-        
-        <div className="bg-white p-1.5 rounded-xl border border-slate-200 shadow-sm mb-12 mx-auto max-w-md flex">
-          <button
-            onClick={() => setActiveTab('search')}
-            className={`flex-1 py-2.5 px-6 rounded-lg font-medium text-sm transition-all duration-200 ${
-              activeTab === 'search'
-                ? 'bg-slate-900 text-white shadow-sm'
-                : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
-            }`}
-          >
-            Single Food Search
-          </button>
-          <button
-            onClick={() => setActiveTab('calculator')}
-             className={`flex-1 py-2.5 px-6 rounded-lg font-medium text-sm transition-all duration-200 ${
-              activeTab === 'calculator'
-                ? 'bg-slate-900 text-white shadow-sm'
-                : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
-            }`}
-          >
-            Recipe Builder
-          </button>
+
+        {/* Tab switcher */}
+        <div style={{
+          display: 'flex', gap: '6px', padding: '6px',
+          background: '#fff', border: '1px solid #e2e8f0',
+          borderRadius: '18px', boxShadow: '0 2px 12px rgba(0,0,0,0.05)',
+          maxWidth: '380px', margin: '0 auto 36px',
+        }}>
+          {(['search', 'calculator'] as const).map(tab => {
+            const active = activeTab === tab;
+            return (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                style={{
+                  flex: 1, padding: '10px 20px', borderRadius: '13px', border: 'none',
+                  fontSize: '13px', fontWeight: '700', cursor: 'pointer', letterSpacing: '0.01em',
+                  background: active ? 'linear-gradient(135deg, #34d399, #14b8a6)' : 'transparent',
+                  color: active ? '#fff' : '#94a3b8',
+                  boxShadow: active ? '0 3px 10px rgba(20,184,166,0.3)' : 'none',
+                  transition: 'all 0.2s',
+                }}
+              >
+                {tab === 'search' ? '🔍 Food Search' : '🧾 Recipe Builder'}
+              </button>
+            );
+          })}
         </div>
 
-        <div className="transition-all duration-500 min-h-[500px]">
-          {activeTab === 'search' ? (
-            <div className="max-w-3xl mx-auto animate-fade-in space-y-8">
-              <div className="glass-card rounded-2xl p-8">
+        {/* Tab content */}
+        <div style={{ minHeight: '500px' }}>
+
+          {/* ── SEARCH TAB ── */}
+          {activeTab === 'search' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+
+              {/* Search card */}
+              <div style={{
+                background: '#fff', borderRadius: '24px',
+                border: '1px solid #f1f5f9',
+                boxShadow: '0 4px 32px rgba(0,0,0,0.07)',
+                padding: '28px',
+              }}>
                 <SearchBar onSearch={handleSearch} isLoading={isLoading} />
-                
+
+                {/* Search history */}
                 {searchHistory.length > 0 && (
-                  <div className="mt-6 flex flex-wrap gap-2 items-center justify-center">
-                    <span className="text-xs font-medium text-slate-400 uppercase tracking-wider mr-2">Recent:</span>
-                    {searchHistory.map((item, index) => (
+                  <div style={{ marginTop: '20px', paddingTop: '18px', borderTop: '1px solid #f8fafc', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '11px', fontWeight: '700', color: '#cbd5e1', textTransform: 'uppercase', letterSpacing: '0.08em', marginRight: '4px' }}>Recent:</span>
+                    {searchHistory.map((item, i) => (
                       <button
-                        key={index}
+                        key={i}
                         onClick={() => handleSearch(item)}
-                        className="px-3 py-1 bg-slate-100 hover:bg-primary-50 text-slate-600 hover:text-primary-700 rounded-full text-xs transition-colors border border-slate-200"
-                      >
-                        {item}
-                      </button>
+                        onMouseEnter={() => setHoveredHistory(i)}
+                        onMouseLeave={() => setHoveredHistory(null)}
+                        style={{
+                          padding: '4px 12px', borderRadius: '20px', border: '1px solid',
+                          fontSize: '12px', fontWeight: '600', cursor: 'pointer',
+                          background: hoveredHistory === i ? '#ecfdf5' : '#f8fafc',
+                          borderColor: hoveredHistory === i ? '#6ee7b7' : '#e2e8f0',
+                          color: hoveredHistory === i ? '#065f46' : '#64748b',
+                          transition: 'all 0.15s',
+                        }}
+                      >{item}</button>
                     ))}
                   </div>
                 )}
               </div>
 
+              {/* Loading */}
               {isLoading && (
-                <div className="text-center py-12">
-                  <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-slate-200 border-t-primary-500"></div>
-                  <p className="mt-4 text-slate-500 font-medium">Analyzing nutritional data...</p>
+                <div style={{
+                  display: 'flex', flexDirection: 'column', alignItems: 'center',
+                  justifyContent: 'center', gap: '14px', padding: '48px',
+                  background: '#fff', borderRadius: '24px',
+                  border: '1px solid #f1f5f9', boxShadow: '0 4px 32px rgba(0,0,0,0.07)',
+                }}>
+                  <div style={{ position: 'relative', width: '48px', height: '48px' }}>
+                    <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '4px solid #d1fae5' }} />
+                    <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '4px solid transparent', borderTopColor: '#14b8a6', animation: 'spin 0.8s linear infinite' }} />
+                  </div>
+                  <p style={{ margin: 0, fontSize: '14px', fontWeight: '600', color: '#94a3b8' }}>Analyzing nutritional data…</p>
                 </div>
               )}
 
-              {error && (
-                <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-r shadow-sm" role="alert">
-                  <p className="font-bold">Unable to fetch data</p>
-                  <p>{error}</p>
+              {/* Error */}
+              {error && !isLoading && (
+                <div style={{
+                  display: 'flex', gap: '14px', alignItems: 'flex-start',
+                  background: '#fef2f2', border: '1px solid #fecaca',
+                  borderRadius: '18px', padding: '18px 20px',
+                }}>
+                  <div style={{ flexShrink: 0, width: '32px', height: '32px', borderRadius: '10px', background: '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px' }}>⚠️</div>
+                  <div>
+                    <p style={{ margin: '0 0 3px', fontSize: '14px', fontWeight: '800', color: '#991b1b' }}>Unable to fetch data</p>
+                    <p style={{ margin: 0, fontSize: '13px', color: '#b91c1c' }}>{error}</p>
+                  </div>
                 </div>
               )}
 
+              {/* Results */}
               {nutritionData && !isLoading && (
-                <div className="glass-card rounded-2xl p-8 transform transition-all hover:scale-[1.01] duration-500">
+                <div style={{
+                  background: '#fff', borderRadius: '24px',
+                  border: '1px solid #f1f5f9',
+                  boxShadow: '0 4px 32px rgba(0,0,0,0.07)',
+                  padding: '28px',
+                }}>
                   <NutritionLabel data={nutritionData} />
                 </div>
               )}
             </div>
-          ) : (
-            <div className="glass-card rounded-2xl p-8 animate-fade-in">
+          )}
+
+          {/* ── CALCULATOR TAB ── */}
+          {activeTab === 'calculator' && (
+            <div style={{
+              background: '#fff', borderRadius: '24px',
+              border: '1px solid #f1f5f9',
+              boxShadow: '0 4px 32px rgba(0,0,0,0.07)',
+              padding: '28px',
+            }}>
               <NutritionCalculator />
             </div>
           )}
         </div>
       </main>
 
-      <footer className="py-8 text-center text-slate-400 text-sm">
-        <p>© {new Date().getFullYear()} NutriCalc. Data generated for educational purposes.</p>
+      {/* ── FOOTER ── */}
+      <footer style={{
+        padding: '24px 20px', textAlign: 'center',
+        borderTop: '1px solid #f1f5f9',
+      }}>
+        <p style={{ margin: 0, fontSize: '12px', color: '#cbd5e1', fontWeight: '500' }}>
+          © {new Date().getFullYear()} NutriCalc — Data generated for educational purposes.
+        </p>
       </footer>
+
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }
