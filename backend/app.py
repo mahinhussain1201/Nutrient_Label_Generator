@@ -12,6 +12,23 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)
 
+# Common food synonyms mapping
+SYNONYMS = {
+    "brinjal": "eggplant",
+    "aubergine": "eggplant",
+    "cilantro": "coriander",
+    "garbanzo": "chickpea",
+    "chana": "chickpea",
+    "courgette": "zucchini",
+    "capsicum": "pepper, bell",
+    "spring onion": "scallion",
+}
+
+def resolve_synonym(query: str) -> str:
+    """Check if query is a synonym and return its mapped value."""
+    query_lower = query.lower().strip()
+    return SYNONYMS.get(query_lower, query)
+
 def get_db_connection():
     """Create and return a database connection."""
     try:
@@ -103,6 +120,7 @@ def search_suggestions():
     - q: Search query
     """
     query_str = request.args.get('q', '').strip()
+    query_str = resolve_synonym(query_str)
     if not query_str or len(query_str) < 2:
         return jsonify([])
         
@@ -138,6 +156,7 @@ def search_fuzzy():
     - q: Search query
     """
     query_str = request.args.get('q', '').strip()
+    query_str = resolve_synonym(query_str)
     if not query_str:
         return jsonify([])
         
@@ -198,6 +217,7 @@ def get_single_nutrition():
         return jsonify({"error": "'food' parameter is required"}), 400
     
     try:
+        food = resolve_synonym(food)
         result = get_nutrition_for_ingredient(food, quantity)
         if not result:
             return jsonify({"error": f"Food '{food}' not found"}), 404
@@ -237,6 +257,7 @@ def get_multiple_nutrition():
                 continue
                 
             name = item['name']
+            name = resolve_synonym(name)
             quantity = float(item.get('quantity_g', 100.0))
             
             nutrition = get_nutrition_for_ingredient(name, quantity)

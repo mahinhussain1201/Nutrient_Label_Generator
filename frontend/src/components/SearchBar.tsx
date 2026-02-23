@@ -58,6 +58,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => {
   const handleSuggestionClick = (suggestion: string) => {
     setQuery(suggestion);
     onSearch(suggestion);
+    setSuggestions([]);
     setShowSuggestions(false);
     setFocused(false);
   };

@@ -69,6 +69,7 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
         e.preventDefault();
         const selected = suggestions[highlightedIndex];
         onSelect(selected);
+        setSuggestions([]);
         setShowSuggestions(false);
       } else if (e.key === 'Escape') {
         setShowSuggestions(false);
@@ -105,6 +106,7 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
               key={index}
               onClick={() => {
                 onSelect(suggestion);
+                setSuggestions([]);
                 setShowSuggestions(false);
               }}
               onMouseEnter={() => setHighlightedIndex(index)}
