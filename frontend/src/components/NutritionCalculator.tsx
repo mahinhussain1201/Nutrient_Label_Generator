@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { searchMultipleIngredients, type MultipleNutritionResponse } from './utils/api';
+import { searchMultipleIngredients, type MultipleNutritionResponse, type Nutrient, type NutritionData } from '../utils/api';
 
 interface Ingredient {
   name: string;
@@ -262,7 +262,7 @@ const NutritionCalculator = () => {
                 </tr>
               </thead>
               <tbody>
-                {results.total_nutrients?.map((n: any, idx: number) => (
+                {results.total_nutrients?.map((n: Nutrient, idx: number) => (
                   <tr key={idx} style={{ borderTop: '1px solid #f8fafc' }}>
                     <td style={{ padding: '12px 24px', fontSize: '14px', fontWeight: '600', color: nutrientAccent(n.name) }}>{n.name}</td>
                     <td style={{ padding: '12px 20px', textAlign: 'right', fontSize: '14px', fontWeight: '700', color: '#0f172a' }}>{fmt(n.amount)}</td>
@@ -281,7 +281,7 @@ const NutritionCalculator = () => {
             <div style={{ padding: '18px 24px', borderBottom: '1px solid #f1f5f9', background: '#fafffe' }}>
               <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '800', color: '#0f172a' }}>Breakdown by Ingredient</h3>
             </div>
-            {results.ingredients?.map((ingredient: any, idx: number) => (
+            {results.ingredients?.map((ingredient: NutritionData, idx: number) => (
               <div key={idx} style={{ padding: '20px 24px', borderTop: idx > 0 ? '1px solid #f1f5f9' : 'none' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '14px' }}>
                   <div style={{
@@ -296,7 +296,7 @@ const NutritionCalculator = () => {
                   </div>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '10px' }}>
-                  {ingredient.nutrients?.map((nutrient: any, nIdx: number) => (
+                  {ingredient.nutrients?.map((nutrient: Nutrient, nIdx: number) => (
                     <div key={nIdx} style={{ background: '#f8fafc', borderRadius: '14px', padding: '12px 14px' }}>
                       <p style={{ margin: '0 0 4px', fontSize: '11px', color: '#94a3b8', fontWeight: '600' }}>{nutrient.name}</p>
                       <p style={{ margin: 0, fontSize: '15px', fontWeight: '800', color: nutrientAccent(nutrient.name) }}>
