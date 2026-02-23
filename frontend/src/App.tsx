@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import {
   searchMultipleIngredients,
+  fuzzySearch,
   type NutritionData,
   type MultipleNutritionResponse
 } from './utils/api';
 import SearchBar from './components/SearchBar';
 import NutritionLabel from './components/NutritionLabel';
 import NutritionCalculator from './components/NutritionCalculator';
+import FoodSelector from './components/FoodSelector';
 import './App.css';
 
 function App() {
@@ -14,18 +16,43 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [nutritionData, setNutritionData] = useState<NutritionData | MultipleNutritionResponse | null>(null);
+  const [searchChoices, setSearchChoices] = useState<string[]>([]);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
   const [hoveredHistory, setHoveredHistory] = useState<number | null>(null);
+
+  const fetchNutrition = async (foodName: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await searchMultipleIngredients([{ name: foodName, quantity_g: 100 }]);
+      setNutritionData(data);
+      setSearchChoices([]);
+      setSearchHistory(prev => [foodName, ...prev.filter(i => i !== foodName)].slice(0, 5));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleSearch = async (query: string) => {
     if (!query.trim()) return;
     setIsLoading(true);
     setError(null);
     setNutritionData(null);
+    setSearchChoices([]);
+    
     try {
-      const data = await searchMultipleIngredients([{ name: query.trim(), quantity_g: 100 }]);
-      setNutritionData(data);
-      setSearchHistory(prev => [query, ...prev.filter(i => i !== query)].slice(0, 5));
+      const choices = await fuzzySearch(query);
+      if (choices.length === 0) {
+        setError(`No matches found for "${query}"`);
+      } else if (choices.length === 1) {
+        // Exact unique match found
+        await fetchNutrition(choices[0]);
+      } else {
+        // Multiple matches found, show selector
+        setSearchChoices(choices);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -84,7 +111,7 @@ function App() {
             return (
               <button
                 key={tab}
-                onClick={() => setActiveTab(tab)}
+                onClick={() => { setActiveTab(tab); setError(null); setNutritionData(null); setSearchChoices([]); }}
                 style={{
                   flex: 1, padding: '10px 20px', borderRadius: '13px', border: 'none',
                   fontSize: '13px', fontWeight: '700', cursor: 'pointer', letterSpacing: '0.01em',
@@ -105,7 +132,7 @@ function App() {
 
           {/* ── SEARCH TAB ── */}
           {activeTab === 'search' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
               {/* Search card */}
               <div style={{
@@ -171,6 +198,17 @@ function App() {
                 </div>
               )}
 
+              {/* Disambiguation */}
+              {searchChoices.length > 0 && !isLoading && (
+                <div style={{ animation: 'fadeIn 0.3s ease-out' }}>
+                  <FoodSelector 
+                    items={searchChoices} 
+                    onSelect={fetchNutrition} 
+                    isLoading={isLoading} 
+                  />
+                </div>
+              )}
+
               {/* Results */}
               {nutritionData && !isLoading && (
                 <div style={{
@@ -178,6 +216,7 @@ function App() {
                   border: '1px solid #f1f5f9',
                   boxShadow: '0 4px 32px rgba(0,0,0,0.07)',
                   padding: '28px',
+                  animation: 'fadeIn 0.4s ease-out',
                 }}>
                   <NutritionLabel data={nutritionData} />
                 </div>
@@ -209,7 +248,10 @@ function App() {
         </p>
       </footer>
 
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+      `}</style>
     </div>
   );
 }

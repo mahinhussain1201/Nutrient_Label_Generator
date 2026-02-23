@@ -29,26 +29,32 @@ def get_db_connection():
 
 def get_nutrition_for_ingredient(ingredient_name: str, quantity_g: float = 100.0) -> Optional[Dict]:
     """
-    Get nutrition information for a single ingredient.
-    
-    Args:
-        ingredient_name: Name of the ingredient
-        quantity_g: Quantity in grams (default: 100g)
-    
-    Returns:
-        Dict containing nutrition info or None if not found
+    Get nutrition information for a single ingredient with source prioritization.
     """
     try:
         conn = get_db_connection()
         with conn.cursor() as cur:
+            # Use source prioritization (USDA > DTU > DUKE > Others)
             query = """
-            SELECT
-                data->>'orig_source_name' AS nutrient,
-                (data->>'standard_content')::float AS value_per_100g,
-                data->>'orig_unit' AS unit
-            FROM food_json
-            WHERE LOWER(data->>'orig_food_common_name') = LOWER(%s)
-            AND data->>'source_type' IN ('Nutrient', 'Compound')
+            WITH ranked_matches AS (
+                SELECT
+                    (data->>'standard_content')::float AS value_per_100g,
+                    data->>'orig_unit' AS unit,
+                    data->>'orig_source_name' AS nutrient,
+                    data->>'citation' AS citation,
+                    CASE 
+                         WHEN data->>'citation' = 'USDA' THEN 1
+                         WHEN data->>'citation' = 'DTU' THEN 2
+                         WHEN data->>'citation' = 'DUKE' THEN 3
+                         ELSE 4
+                    END as source_rank
+                FROM food_json
+                WHERE LOWER(data->>'orig_food_common_name') = LOWER(%s)
+                AND data->>'source_type' IN ('Nutrient', 'Compound')
+            )
+            SELECT nutrient, value_per_100g, unit, citation
+            FROM ranked_matches
+            WHERE source_rank = (SELECT MIN(source_rank) FROM ranked_matches)
             """
             app.logger.info(f"Searching for ingredient: {ingredient_name}")
             cur.execute(query, (ingredient_name,))
@@ -57,14 +63,14 @@ def get_nutrition_for_ingredient(ingredient_name: str, quantity_g: float = 100.0
             if not results:
                 return None
                 
-            # Calculate nutrient values based on quantity
             nutrients = []
+            citation_found = "Unknown"
             for row in results:
                 nutrient_name = row[0]
                 value_per_100g = float(row[1]) if row[1] is not None else 0.0
                 unit = row[2]
+                citation_found = row[3]
                 
-                # Calculate value for the given quantity
                 calculated_value = (value_per_100g * quantity_g) / 100.0
                 
                 nutrients.append({
@@ -77,11 +83,61 @@ def get_nutrition_for_ingredient(ingredient_name: str, quantity_g: float = 100.0
             return {
                 "ingredient": ingredient_name,
                 "quantity_g": quantity_g,
-                "nutrients": nutrients
+                "nutrients": nutrients,
+                "source": citation_found
             }
     except Exception as e:
         app.logger.error(f"Error getting nutrition for {ingredient_name}: {str(e)}")
         return None
+    finally:
+        if 'conn' in locals():
+            conn.close()
+
+@app.route('/api/search/fuzzy', methods=['GET'])
+def search_fuzzy():
+    """
+    Fuzzy search for food names.
+    Query parameters:
+    - q: Search query
+    """
+    query_str = request.args.get('q', '').strip()
+    if not query_str:
+        return jsonify([])
+        
+    try:
+        conn = get_db_connection()
+        with conn.cursor() as cur:
+            # First try exact match (case insensitive)
+            exact_query = """
+            SELECT DISTINCT data->>'orig_food_common_name'
+            FROM food_json
+            WHERE LOWER(data->>'orig_food_common_name') = LOWER(%s)
+            LIMIT 1
+            """
+            cur.execute(exact_query, (query_str,))
+            exact_result = cur.fetchone()
+            if exact_result:
+                return jsonify([exact_result[0]])
+
+            # If no exact match, use trigram similarity and ILIKE for fuzzy search
+            fuzzy_query = """
+            SELECT name FROM (
+                SELECT DISTINCT data->>'orig_food_common_name' as name,
+                       similarity(data->>'orig_food_common_name', %s) as score
+                FROM food_json
+                WHERE data->>'orig_food_common_name' ILIKE %s
+                OR similarity(data->>'orig_food_common_name', %s) > 0.3
+            ) sub
+            ORDER BY score DESC, name
+            LIMIT 15
+            """
+            search_pattern = f'%{query_str}%'
+            cur.execute(fuzzy_query, (query_str, search_pattern, query_str))
+            results = cur.fetchall()
+            return jsonify([row[0] for row in results])
+    except Exception as e:
+        app.logger.error(f"Error in /api/search/fuzzy: {str(e)}")
+        return jsonify([])
     finally:
         if 'conn' in locals():
             conn.close()

@@ -60,3 +60,17 @@ export const searchMultipleIngredients = async (ingredients: Ingredient[]): Prom
     throw error;
   }
 };
+
+export const fuzzySearch = async (query: string): Promise<string[]> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/search/fuzzy?q=${encodeURIComponent(query)}`);
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Fuzzy search failed');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error performing fuzzy search:', error);
+    throw error;
+  }
+};
