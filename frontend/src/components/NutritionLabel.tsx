@@ -88,7 +88,7 @@ const NutritionLabel: React.FC<NutritionLabelProps> = ({ data }) => {
             margin: '0 0 4px', fontSize: '11px', fontWeight: '700',
             letterSpacing: '0.1em', textTransform: 'uppercase', color: '#94a3b8',
           }}>
-            {isMultiple ? 'Recipe Totals' : 'Single Ingredient'}
+            {isMultiple ? 'Recipe Profile (Per 100g)' : 'Single Ingredient'}
           </p>
           <h2 style={{ margin: '0 0 14px', fontSize: '22px', fontWeight: '900', color: '#0f172a', letterSpacing: '-0.02em' }}>
             Nutrition Facts
@@ -97,16 +97,25 @@ const NutritionLabel: React.FC<NutritionLabelProps> = ({ data }) => {
           {/* Tags */}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
             {isMultiple && multiData!.ingredients ? (
-              multiData!.ingredients.map((ing, i) => (
-                <span key={i} style={{
-                  background: '#f0fdfa', border: '1px solid #ccfbf1',
+              <>
+                <span style={{
+                  background: '#f0f9ff', border: '1px solid #e0f2fe',
                   borderRadius: '20px', padding: '3px 10px',
-                  fontSize: '12px', color: '#0f766e', fontWeight: '500',
+                  fontSize: '12px', color: '#0369a1', fontWeight: '700',
                 }}>
-                  <span style={{ color: '#14b8a6', fontWeight: '700' }}>{ing.quantity_g}g</span>
-                  {' '}{ing.ingredient ?? (ing as any).name}
+                  ⚖️ Weighted Average
                 </span>
-              ))
+                {multiData!.ingredients.map((ing, i) => (
+                  <span key={i} style={{
+                    background: '#f0fdfa', border: '1px solid #ccfbf1',
+                    borderRadius: '20px', padding: '3px 10px',
+                    fontSize: '12px', color: '#0f766e', fontWeight: '500',
+                  }}>
+                    <span style={{ color: '#14b8a6', fontWeight: '700' }}>{ing.quantity_g}g</span>
+                    {' '}{ing.ingredient ?? (ing as any).name}
+                  </span>
+                ))}
+              </>
             ) : (
               <span style={{
                 display: 'inline-flex', alignItems: 'center', gap: '6px',

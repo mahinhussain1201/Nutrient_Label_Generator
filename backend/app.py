@@ -251,6 +251,7 @@ def get_multiple_nutrition():
         results = []
         not_found = []
         total_nutrients = {}
+        total_weight = 0.0
         
         for item in ingredients:
             if not isinstance(item, dict) or 'name' not in item:
@@ -263,6 +264,7 @@ def get_multiple_nutrition():
             nutrition = get_nutrition_for_ingredient(resolved_name, quantity)
             if nutrition:
                 results.append(nutrition)
+                total_weight += quantity
                 
                 # Aggregate total nutrients
                 for nutrient in nutrition['nutrients']:
@@ -276,16 +278,23 @@ def get_multiple_nutrition():
             else:
                 not_found.append(original_name)
         
-        # Format total nutrients
-        formatted_totals = [
-            {"name": name, "amount": round(data['amount'], 2), "unit": data['unit']}
-            for name, data in total_nutrients.items()
-        ]
+        # Format total nutrients (Normalized to per 100g if multiple ingredients)
+        formatted_totals = []
+        if total_weight > 0:
+            formatted_totals = [
+                {
+                    "name": name, 
+                    "amount": round((data['amount'] / total_weight) * 100, 2), 
+                    "unit": data['unit']
+                }
+                for name, data in total_nutrients.items()
+            ]
         
         response = {
             "ingredients": results,
             "total_nutrients": formatted_totals,
-            "not_found": not_found
+            "not_found": not_found,
+            "total_weight_g": round(total_weight, 2)
         }
         
         return jsonify(response)
