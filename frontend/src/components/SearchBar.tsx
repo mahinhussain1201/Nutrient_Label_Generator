@@ -101,6 +101,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => {
 
           <input
             type="text"
+            className="search-input"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onFocus={() => setFocused(true)}
@@ -131,6 +132,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => {
           {query && !isLoading && (
             <button
               type="button"
+              className="search-clear-btn"
               onClick={() => { setQuery(''); setSuggestions([]); setShowSuggestions(false); }}
               style={{
                 position: 'absolute', right: '108px', top: '50%', transform: 'translateY(-50%)',
@@ -146,6 +148,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => {
           {/* Submit button */}
           <button
             type="submit"
+            className="search-submit-btn"
             disabled={!canSubmit}
             style={{
               position: 'absolute', right: '6px', top: '6px', bottom: '6px',

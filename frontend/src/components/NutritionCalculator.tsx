@@ -183,7 +183,7 @@ const NutritionCalculator: React.FC<NutritionCalculatorProps> = ({ showAlert }) 
   const blurStyle = { borderColor: '#e2e8f0', background: '#f8fafc', boxShadow: 'none' };
 
   return (
-    <div style={{
+    <div className="calculator-container" style={{
       background: 'rgba(255, 255, 255, 0.7)',
       backdropFilter: 'blur(10px)',
       borderRadius: '24px',
@@ -192,14 +192,15 @@ const NutritionCalculator: React.FC<NutritionCalculatorProps> = ({ showAlert }) 
       border: '1px solid rgba(255, 255, 255, 0.8)',
       display: 'flex',
       flexDirection: 'column',
-      gap: '28px'
+      gap: '28px',
+      boxSizing: 'border-box',
     }}>
 
       {/* Header with Clear All */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div className="calculator-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div style={{ width: '4px', height: '14px', background: '#14b8a6', borderRadius: '4px' }} />
-          <p style={{ margin: 0, fontSize: '11px', fontWeight: '800', color: '#94a3b8', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+          <p className="calculator-title" style={{ margin: 0, fontSize: '11px', fontWeight: '800', color: '#94a3b8', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
             Recipe Builder
           </p>
         </div>
@@ -220,13 +221,13 @@ const NutritionCalculator: React.FC<NutritionCalculatorProps> = ({ showAlert }) 
       </div>
 
       {/* Ingredient rows */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+      <div className="ingredient-list" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
         {ingredients.map((ingredient, index) => (
           <React.Fragment key={index}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div className="ingredient-row" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
 
               {/* Index badge */}
-              <div style={{
+              <div className="row-index" style={{
                 flexShrink: 0, width: '32px', height: '32px', borderRadius: '10px',
                 background: '#f0fdfa',
                 color: '#14b8a6', display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -236,7 +237,7 @@ const NutritionCalculator: React.FC<NutritionCalculatorProps> = ({ showAlert }) 
               </div>
 
               {/* Name input */}
-              <div style={{ flexGrow: 1, position: 'relative' }}>
+              <div className="name-input-wrapper" style={{ flexGrow: 1, position: 'relative' }}>
                 <AutocompleteInput
                   value={ingredient.name}
                   onChange={value => handleIngredientChange(index, value)}
@@ -252,10 +253,11 @@ const NutritionCalculator: React.FC<NutritionCalculatorProps> = ({ showAlert }) 
               </div>
 
               {/* Quantity */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+              <div className="quantity-wrapper" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
                 <div style={{ position: 'relative' }}>
                   <input
                     type="number"
+                    className="quantity-input"
                     value={ingredient.quantity}
                     onChange={e => handleQuantityChange(index, e.target.value)}
                     min="1"
@@ -264,7 +266,7 @@ const NutritionCalculator: React.FC<NutritionCalculatorProps> = ({ showAlert }) 
                     onBlur={e => Object.assign(e.target.style, blurStyle)}
                   />
                 </div>
-                <span style={{ fontSize: '12px', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.04em' }}>g</span>
+                <span className="unit-label" style={{ fontSize: '12px', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.04em' }}>g</span>
               </div>
 
               {/* Remove */}
@@ -342,8 +344,9 @@ const NutritionCalculator: React.FC<NutritionCalculatorProps> = ({ showAlert }) 
       </div>
 
       {/* Actions row */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '24px', borderTop: '1px solid #f1f5f9' }}>
+      <div className="calculator-actions" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '24px', borderTop: '1px solid #f1f5f9' }}>
         <button
+          className="add-ingredient-btn"
           onClick={addIngredient}
           onMouseEnter={() => setHoveredAdd(true)}
           onMouseLeave={() => setHoveredAdd(false)}
@@ -355,14 +358,15 @@ const NutritionCalculator: React.FC<NutritionCalculatorProps> = ({ showAlert }) 
             padding: '10px 16px', borderRadius: '14px', transition: 'all 0.2s',
           }}
         >
-          <div style={{
+          <div className="plus-icon" style={{
             width: '24px', height: '24px', borderRadius: '8px', background: '#ccfbf1',
             display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', color: '#14b8a6'
           }}>+</div>
-          Add Ingredient
+          <span>Add Ingredient</span>
         </button>
 
         <button
+          className="calculate-btn"
           onClick={calculateNutrition}
           disabled={loading}
           style={{
@@ -379,13 +383,9 @@ const NutritionCalculator: React.FC<NutritionCalculatorProps> = ({ showAlert }) 
           onMouseLeave={e => !loading && (e.currentTarget.style.transform = 'translateY(0)')}
         >
           {loading ? (
-            <>
-              <div style={{ width: '20px', height: '20px', border: '3px solid #fff', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-              Calculating...
-            </>
-          ) : (
-            <>🏷️ Calculate Recipe Totals</>
-          )}
+            <div className="loading-spinner-small" style={{ width: '20px', height: '20px', border: '3px solid #fff', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+          ) : null}
+          <span>{loading ? 'Calculating...' : 'Calculate Recipe Totals'}</span>
         </button>
       </div>
 

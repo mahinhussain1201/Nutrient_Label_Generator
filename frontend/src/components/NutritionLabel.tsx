@@ -53,7 +53,7 @@ const formatAmount = (amount: number, unit: string): string => {
   return `${val} ${unit === 'kcal' ? 'cal' : unit}`;
 };
 
-const DV: Record<string, number> = {
+const DV_LIMITS: Record<string, number> = {
   'Energy': 2000, 'Protein': 50, 'Total lipid': 78,
   'Carbohydrate': 275, 'Fiber': 28, 'Sugars': 50,
   'Fatty acids': 20, 'Cholesterol': 300, 'Sodium': 2300,
@@ -61,9 +61,9 @@ const DV: Record<string, number> = {
   'Vitamin C': 90, 'Vitamin A': 900,
 };
 
-const getDV = (name: string, amount: number): number | null => {
+const calculateDV = (name: string, amount: number): number | null => {
   if (!name) return null;
-  for (const [key, dv] of Object.entries(DV)) {
+  for (const [key, dv] of Object.entries(DV_LIMITS)) {
     if (name.includes(key)) return Math.min(100, Math.round((amount / dv) * 100));
   }
   return null;
@@ -94,200 +94,134 @@ const NutritionLabel: React.FC<NutritionLabelProps> = ({ data, showAlert }) => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', position: 'relative' }}>
+    <div className="nutrition-facts-card" style={{
+      width: '100%',
+      maxWidth: '420px',
+      background: 'white',
+      padding: '24px',
+      borderRadius: '24px',
+      border: '1px solid #e2e8f0',
+      boxShadow: '0 10px 30px rgba(0,0,0,0.06)',
+      position: 'relative',
+      boxSizing: 'border-box',
+    }}>
       {/* Copy Button */}
       <button
         onClick={copyToClipboard}
+        className="label-copy-btn"
         style={{
-          position: 'absolute', top: '-10px', right: '-10px',
+          position: 'absolute', top: '20px', right: '20px',
           padding: '6px 12px', borderRadius: '10px', background: '#f8fafc',
           border: '1px solid #e2e8f0', cursor: 'pointer', fontSize: '11px', fontWeight: '700',
           color: '#64748b', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '4px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
           zIndex: 10
         }}
-        onMouseEnter={e => (e.currentTarget.style.background = '#f1f5f9')}
-        onMouseLeave={e => (e.currentTarget.style.background = '#f8fafc')}
-        title="Copy as Text"
       >
         📋 Copy
       </button>
 
-      {/* ── Header row ── */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px' }}>
-        <div style={{ flexGrow: 1 }}>
-          {/* Label type */}
-          <p style={{
-            margin: '0 0 4px', fontSize: '11px', fontWeight: '700',
-            letterSpacing: '0.1em', textTransform: 'uppercase', color: '#94a3b8',
-          }}>
-            {isMultiple ? 'Recipe Profile (Per 100g)' : 'Single Ingredient'}
-          </p>
-          <h2 style={{ margin: '0 0 14px', fontSize: '22px', fontWeight: '900', color: '#0f172a', letterSpacing: '-0.02em' }}>
-            Nutrition Facts
-          </h2>
-
-          {/* Tags */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-            {isMultiple && multiData!.ingredients ? (
-              <>
-                <span style={{
-                  background: '#f0f9ff', border: '1px solid #e0f2fe',
-                  borderRadius: '20px', padding: '3px 10px',
-                  fontSize: '12px', color: '#0369a1', fontWeight: '700',
-                }}>
-                  ⚖️ Weighted Average
-                </span>
-                {multiData!.ingredients.map((ing, i) => (
-                  <span key={i} style={{
-                    background: '#f0fdfa', border: '1px solid #ccfbf1',
-                    borderRadius: '20px', padding: '3px 10px',
-                    fontSize: '12px', color: '#0f766e', fontWeight: '500',
-                  }}>
-                    <span style={{ color: '#14b8a6', fontWeight: '700' }}>{ing.quantity_g}g</span>
-                    {' '}{ing.ingredient ?? (ing as any).name}
-                  </span>
-                ))}
-              </>
-            ) : (
-              <span style={{
-                display: 'inline-flex', alignItems: 'center', gap: '6px',
-                background: '#f8fafc', border: '1px solid #e2e8f0',
-                borderRadius: '20px', padding: '4px 12px',
-                fontSize: '12px', color: '#64748b', fontWeight: '500',
-              }}>
-                Serving size: <strong style={{ color: '#0f172a' }}>100g</strong>
-              </span>
-            )}
-          </div>
-        </div>
-
-        {/* Calories badge */}
-        {calories && (
-          <div style={{
-            flexShrink: 0, textAlign: 'center',
-            background: 'linear-gradient(135deg, #34d399, #14b8a6)',
-            borderRadius: '18px', padding: '16px 20px',
-            boxShadow: '0 4px 16px rgba(20,184,166,0.3)',
-          }}>
-            <p style={{
-              margin: '0 0 2px', fontSize: '10px', fontWeight: '700',
-              color: 'rgba(255,255,255,0.8)', textTransform: 'uppercase', letterSpacing: '0.08em',
-            }}>Calories</p>
-            <p style={{ margin: 0, fontSize: '32px', fontWeight: '900', color: '#fff', lineHeight: 1 }}>
-              {Math.round(calories.amount)}
+      {/* Header Info */}
+      <div className="label-header-info" style={{ marginBottom: '20px' }}>
+        <p className="label-category" style={{
+          margin: '0 0 4px', fontSize: '10px', fontWeight: '800',
+          letterSpacing: '0.1em', textTransform: 'uppercase', color: '#94a3b8',
+        }}>
+          {isMultiple ? 'Recipe Analysis' : 'Food Analysis'}
+        </p>
+        <h2 className="label-title" style={{ margin: '0 0 12px', fontSize: '24px', fontWeight: '900', color: '#0f172a' }}>
+          Nutrition Facts
+        </h2>
+        
+        <div className="serving-info-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
+          <div className="serving-text">
+            <p style={{ margin: 0, fontSize: '14px', fontWeight: '700', color: '#1e293b' }}>
+              {isMultiple ? 'Recipe Totals' : (data as NutritionData).ingredient}
+            </p>
+            <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>
+              {isMultiple ? 'Normalized per 100g' : `Serving: ${(data as NutritionData).quantity_g}g`}
             </p>
           </div>
-        )}
-      </div>
-
-      {/* ── Divider ── */}
-      <div style={{ height: '1px', background: '#f1f5f9' }} />
-
-      {/* ── Column headers ── */}
-      <div style={{
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        padding: '0 0 8px',
-        borderBottom: '1px solid #e2e8f0',
-      }}>
-        <span style={{ fontSize: '11px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-          Nutrient
-        </span>
-        <div style={{ display: 'flex', gap: '32px' }}>
-          <span style={{ fontSize: '11px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Amount</span>
-          <span style={{ fontSize: '11px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', width: '48px', textAlign: 'right' }}>% DV</span>
+          {isMultiple && (
+            <div className="badge-weighted" style={{
+              background: '#f0fdf4', color: '#16a34a', padding: '4px 8px', borderRadius: '6px',
+              fontSize: '10px', fontWeight: '800', border: '1px solid #dcfce7', whiteSpace: 'nowrap'
+            }}>
+              ⚖️ WEIGHTED
+            </div>
+          )}
         </div>
       </div>
 
-      {/* ── Nutrient rows ── */}
-      {nutrientList.length === 0 ? (
-        <div style={{ padding: '40px 0', textAlign: 'center', color: '#94a3b8', fontSize: '14px' }}>
-          <div style={{ fontSize: '32px', marginBottom: '10px' }}>🔍</div>
-          No nutrient data available
-        </div>
-      ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-          {nutrientList.map((nutrient, index) => {
-            if (!nutrient.name) return null;
-            const meta = getMeta(nutrient.name);
-            const dv = getDV(nutrient.name, nutrient.amount);
-            const isCalorie = nutrient.name.includes('Energy');
-
-            return (
-              <div
-                key={index}
-                style={{
-                  borderRadius: '12px',
-                  background: isCalorie ? '#f0fdfa' : 'transparent',
-                  transition: 'background 0.15s',
-                }}
-                onMouseEnter={e => {
-                  if (!isCalorie) (e.currentTarget as HTMLElement).style.background = '#f8fafc';
-                }}
-                onMouseLeave={e => {
-                  (e.currentTarget as HTMLElement).style.background = isCalorie ? '#f0fdfa' : 'transparent';
-                }}
-              >
-                {/* Row */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px' }}>
-                  {/* Icon + name */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <div style={{
-                      width: '28px', height: '28px', borderRadius: '8px',
-                      background: meta.bg, display: 'flex', alignItems: 'center',
-                      justifyContent: 'center', fontSize: '14px', flexShrink: 0,
-                    }}>
-                      {meta.icon}
-                    </div>
-                    <span style={{ fontSize: '14px', fontWeight: '600', color: '#1e293b' }}>
-                      {formatName(nutrient.name)}
-                    </span>
-                  </div>
-
-                  {/* Amount + DV */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexShrink: 0 }}>
-                    <span style={{ fontSize: '14px', fontWeight: '800', color: meta.color }}>
-                      {formatAmount(nutrient.amount, nutrient.unit)}
-                    </span>
-                    <div style={{ width: '48px', textAlign: 'right' }}>
-                      {dv !== null ? (
-                        <span style={{
-                          fontSize: '12px', fontWeight: '700', padding: '2px 8px',
-                          borderRadius: '10px', background: meta.bg, color: meta.color,
-                          whiteSpace: 'nowrap',
-                        }}>{dv}%</span>
-                      ) : (
-                        <span style={{ fontSize: '12px', color: '#cbd5e1' }}>—</span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Progress bar */}
-                {dv !== null && (
-                  <div style={{ padding: '0 12px 8px 50px' }}>
-                    <div style={{ height: '3px', background: '#f1f5f9', borderRadius: '99px', overflow: 'hidden' }}>
-                      <div style={{
-                        height: '100%', width: `${dv}%`,
-                        background: `linear-gradient(90deg, ${meta.color}55, ${meta.color})`,
-                        borderRadius: '99px',
-                        transition: 'width 0.6s ease',
-                      }} />
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
+      {/* Calories Block */}
+      {calories && (
+        <div className="calories-block" style={{
+          background: 'linear-gradient(135deg, #f0fdfa, #f0f9ff)',
+          padding: '16px', borderRadius: '16px', border: '1px solid #ccfbf1',
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          marginBottom: '20px'
+        }}>
+          <div>
+            <p style={{ margin: 0, fontSize: '12px', fontWeight: '700', color: '#14b8a6', textTransform: 'uppercase' }}>Calories</p>
+            <p style={{ margin: 0, fontSize: '14px', color: '#64748b' }}>Amount per 100g</p>
+          </div>
+          <p style={{ margin: 0, fontSize: '36px', fontWeight: '900', color: '#0f172a' }}>
+            {Math.round(calories.amount)}
+          </p>
         </div>
       )}
 
-      {/* ── Footer note ── */}
-      <div style={{ paddingTop: '12px', borderTop: '1px solid #f1f5f9' }}>
-        <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8', lineHeight: 1.6 }}>
-          * Percent Daily Values are based on a 2,000 calorie diet. Your daily values may be higher or lower depending on your calorie needs.
-        </p>
+      {/* Nutrient List */}
+      <div className="nutrients-display-list" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div className="list-header" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', paddingBottom: '8px', borderBottom: '1px solid #f1f5f9' }}>
+          <span>Nutrient</span>
+          <div style={{ display: 'flex', gap: '24px' }}>
+            <span>Amount</span>
+            <span style={{ width: '40px', textAlign: 'right' }}>% DV</span>
+          </div>
+        </div>
+
+        {nutrientList.filter(n => n.name && !n.name.includes('Energy')).map((nutrient, index) => {
+          const meta = getMeta(nutrient.name);
+          const dv = calculateDV(nutrient.name, nutrient.amount);
+          
+          return (
+            <div key={index} className="nutrient-row-item">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '14px', width: '20px' }}>{meta.icon}</span>
+                  <span style={{ fontSize: '14px', fontWeight: '600', color: '#1e293b' }}>
+                    {formatName(nutrient.name)}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
+                  <span style={{ fontSize: '14px', fontWeight: '700', color: meta.color }}>
+                    {formatAmount(nutrient.amount, nutrient.unit)}
+                  </span>
+                  <span style={{ fontSize: '12px', fontWeight: '800', color: '#64748b', width: '40px', textAlign: 'right' }}>
+                    {dv !== null ? `${dv}%` : '—'}
+                  </span>
+                </div>
+              </div>
+              
+              {dv !== null && (
+                <div className="dv-bar-bg" style={{ height: '4px', background: '#f1f5f9', borderRadius: '2px', overflow: 'hidden' }}>
+                  <div className="dv-bar-fill" style={{
+                    width: `${dv}%`,
+                    height: '100%',
+                    background: meta.color,
+                    borderRadius: '2px',
+                    transition: 'width 1s ease-out'
+                  }} />
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
+
+      <p className="dv-footnote" style={{ margin: '20px 0 0', fontSize: '10px', color: '#94a3b8', fontStyle: 'italic', lineHeight: 1.5 }}>
+        * The % Daily Value (DV) tells you how much a nutrient in a serving of food contributes to a daily diet. 2,000 calories a day is used for general nutrition advice.
+      </p>
     </div>
   );
 };
