@@ -176,7 +176,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => {
                   <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.3" />
                   <path d="M4 12a8 8 0 018-8" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
                 </svg>
-                Analyzing
+                <span className="search-btn-label">Analyzing</span>
               </>
             ) : (
               <>
@@ -184,7 +184,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => {
                   <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
                   <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" />
                 </svg>
-                Analyze
+                <span className="search-btn-label">Analyze</span>
               </>
             )}
           </button>
@@ -236,7 +236,42 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => {
         </div>
       </div>
 
-      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
+      <style>{`
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* Responsive: shrink input padding and button on small screens */
+        @media (max-width: 480px) {
+          .search-input {
+            padding: 13px 90px 13px 44px !important;
+            font-size: 14px !important;
+            border-radius: 14px !important;
+          }
+          .search-submit-btn {
+            padding: 0 12px !important;
+            font-size: 13px !important;
+            border-radius: 10px !important;
+          }
+          .search-btn-label {
+            display: none;
+          }
+          .search-clear-btn {
+            right: 72px !important;
+          }
+        }
+
+        @media (max-width: 360px) {
+          .search-input {
+            padding: 12px 76px 12px 40px !important;
+            font-size: 13px !important;
+          }
+          .search-submit-btn {
+            padding: 0 10px !important;
+          }
+          .search-clear-btn {
+            right: 60px !important;
+          }
+        }
+      `}</style>
     </div>
   );
 };

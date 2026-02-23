@@ -5,11 +5,13 @@ import {
   type NutritionData,
   type MultipleNutritionResponse
 } from './utils/api';
+import { motion, AnimatePresence } from 'framer-motion';
 import SearchBar from './components/SearchBar';
 import NutritionLabel from './components/NutritionLabel';
 import NutritionCalculator from './components/NutritionCalculator';
 import FoodSelector from './components/FoodSelector';
 import PremiumAlert, { type AlertOptions } from './components/PremiumAlert';
+import { SkeletonSearch, SkeletonLabel } from './components/SkeletonLoader';
 import './App.css';
 
 function App() {
