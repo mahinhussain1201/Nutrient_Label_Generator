@@ -49,6 +49,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => {
     if (e) e.preventDefault();
     if (query.trim()) {
       onSearch(query.trim());
+      setSuggestions([]);
       setShowSuggestions(false);
       setFocused(false);
     }
@@ -186,7 +187,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => {
         </form>
 
         {/* Suggestions Dropdown */}
-        {showSuggestions && (
+        {showSuggestions && !isLoading && (
           <div style={{
             position: 'absolute', top: 'calc(100% + 8px)', left: 0, right: 0,
             background: '#fff', borderRadius: '18px', border: '1px solid #e2e8f0',

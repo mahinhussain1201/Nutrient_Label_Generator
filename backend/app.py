@@ -115,6 +115,8 @@ def search_suggestions():
             SELECT DISTINCT data->>'orig_food_common_name' as name
             FROM food_json
             WHERE lower(data->>'orig_food_common_name') LIKE lower(%s)
+            AND data->>'orig_source_name' IS NOT NULL
+            AND data->>'source_type' IN ('Nutrient', 'Compound')
             ORDER BY name
             LIMIT 10
             """
@@ -147,6 +149,8 @@ def search_fuzzy():
             SELECT DISTINCT data->>'orig_food_common_name'
             FROM food_json
             WHERE LOWER(data->>'orig_food_common_name') = LOWER(%s)
+            AND data->>'orig_source_name' IS NOT NULL
+            AND data->>'source_type' IN ('Nutrient', 'Compound')
             LIMIT 1
             """
             cur.execute(exact_query, (query_str,))
@@ -160,8 +164,10 @@ def search_fuzzy():
                 SELECT DISTINCT data->>'orig_food_common_name' as name,
                        similarity(data->>'orig_food_common_name', %s) as score
                 FROM food_json
-                WHERE data->>'orig_food_common_name' ILIKE %s
-                OR similarity(data->>'orig_food_common_name', %s) > 0.3
+                WHERE (data->>'orig_food_common_name' ILIKE %s
+                OR similarity(data->>'orig_food_common_name', %s) > 0.3)
+                AND data->>'orig_source_name' IS NOT NULL
+                AND data->>'source_type' IN ('Nutrient', 'Compound')
             ) sub
             ORDER BY score DESC, name
             LIMIT 15
