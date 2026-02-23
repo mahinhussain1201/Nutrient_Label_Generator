@@ -84,11 +84,46 @@ def get_nutrition_for_ingredient(ingredient_name: str, quantity_g: float = 100.0
                 
             nutrients = []
             citation_found = "Unknown"
+            
+            # Unit Mapping/Fallback
+            MACRO_KEYWORDS = ['Protein', 'lipid', 'Carbohydrate', 'Fiber', 'Sugar', 'Fatty acid']
+            FALLBACK_UNITS = {
+                'Energy': 'kcal',
+                'Protein': 'g',
+                'lipid': 'g',
+                'Carbohydrate': 'g',
+                'Fiber': 'g',
+                'Sugar': 'g',
+                'Fatty acid': 'g',
+                'Sodium': 'mg',
+                'Calcium': 'mg',
+                'Iron': 'mg',
+                'Potassium': 'mg',
+                'Vitamin C': 'mg',
+                'Vitamin A': 'RAE'
+            }
+
             for row in results:
                 nutrient_name = row[0]
                 value_per_100g = float(row[1]) if row[1] is not None else 0.0
-                unit = row[2]
+                unit = row[2].strip() if row[2] else None
                 citation_found = row[3]
+                
+                # Normalization & Fallback Logic
+                if not unit:
+                    for key, fallback in FALLBACK_UNITS.items():
+                        if key in nutrient_name:
+                            unit = fallback
+                            break
+                    if not unit: unit = 'mg' # Final safety fallback
+                
+                # Standardize "mg/100 g" to "g" for macros
+                is_macro = any(kw in nutrient_name for kw in MACRO_KEYWORDS)
+                if is_macro and unit == "mg/100 g":
+                    value_per_100g = value_per_100g / 1000.0
+                    unit = "g"
+                elif unit == "mg/100 g":
+                    unit = "mg" # Clean up micronutrient units
                 
                 calculated_value = (value_per_100g * quantity_g) / 100.0
                 
