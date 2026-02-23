@@ -9,6 +9,7 @@ import SearchBar from './components/SearchBar';
 import NutritionLabel from './components/NutritionLabel';
 import NutritionCalculator from './components/NutritionCalculator';
 import FoodSelector from './components/FoodSelector';
+import PremiumAlert, { type AlertOptions } from './components/PremiumAlert';
 import './App.css';
 
 function App() {
@@ -18,6 +19,9 @@ function App() {
   const [nutritionData, setNutritionData] = useState<NutritionData | MultipleNutritionResponse | null>(null);
   const [searchChoices, setSearchChoices] = useState<string[]>([]);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
+  const [alert, setAlert] = useState<AlertOptions | null>(null);
+
+  const showAlert = (options: AlertOptions) => setAlert(options);
 
   const fetchNutrition = async (foodName: string) => {
     setIsLoading(true);
@@ -171,13 +175,13 @@ function App() {
 
             {nutritionData && !isLoading && (
               <div style={{ animation: 'fadeIn 0.5s ease-out', width: '100%', display: 'flex', justifyContent: 'center' }}>
-                <NutritionLabel data={nutritionData} />
+                <NutritionLabel data={nutritionData} showAlert={showAlert} />
               </div>
             )}
           </div>
         ) : (
           <div style={{ animation: 'fadeIn 0.5s ease-out' }}>
-            <NutritionCalculator />
+            <NutritionCalculator showAlert={showAlert} />
           </div>
         )}
       </div>
@@ -196,6 +200,8 @@ function App() {
       <footer style={{ marginTop: '80px', textAlign: 'center', color: '#94a3b8', fontSize: '13px' }}>
         <p>© {new Date().getFullYear()} Nutritive — Professional Nutritional Analytics</p>
       </footer>
+
+      <PremiumAlert alert={alert} onClose={() => setAlert(null)} />
 
       <style>{`
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }

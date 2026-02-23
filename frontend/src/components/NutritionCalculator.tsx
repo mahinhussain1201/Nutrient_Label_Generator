@@ -2,13 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { searchMultipleIngredients, fuzzySearch, type MultipleNutritionResponse, type Nutrient, type NutritionData } from '../utils/api';
 import NutritionLabel from './NutritionLabel';
 import AutocompleteInput from './AutocompleteInput';
+import { type AlertOptions } from './PremiumAlert';
+
+interface NutritionCalculatorProps {
+  showAlert: (options: AlertOptions) => void;
+}
 
 interface Ingredient {
   name: string;
   quantity: number;
 }
 
-const NutritionCalculator = () => {
+const NutritionCalculator: React.FC<NutritionCalculatorProps> = ({ showAlert }) => {
   const [ingredients, setIngredients] = useState<Ingredient[]>([{ name: '', quantity: 100 }]);
   const [results, setResults] = useState<MultipleNutritionResponse | null>(null);
   const [loading, setLoading] = useState(false);
@@ -145,14 +150,19 @@ const NutritionCalculator = () => {
   };
   
   const clearAll = () => {
-    if (window.confirm('Are you sure you want to clear all ingredients?')) {
-      setIngredients([{ name: '', quantity: 100 }]);
-      setResults(null);
-      setError('');
-      setInvalidRows({});
-      setDisambiguationOptions({});
-      localStorage.removeItem('recipe_ingredients');
-    }
+    showAlert({
+      type: 'confirm',
+      message: 'Are you sure you want to clear all ingredients and results?',
+      onConfirm: () => {
+        setIngredients([{ name: '', quantity: 100 }]);
+        setResults(null);
+        setError('');
+        setInvalidRows({});
+        setDisambiguationOptions({});
+        localStorage.removeItem('recipe_ingredients');
+        showAlert({ type: 'success', message: 'Recipe cleared!' });
+      }
+    });
   };
 
   const inputStyle = {
@@ -421,7 +431,7 @@ const NutritionCalculator = () => {
             boxShadow: '0 4px 32px rgba(0,0,0,0.07)',
             padding: '28px',
           }}>
-            <NutritionLabel data={results} />
+            <NutritionLabel data={results} showAlert={showAlert} />
           </div>
 
           {/* Per-Ingredient Breakdown */}
