@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { searchMultipleIngredients, type MultipleNutritionResponse, type Nutrient, type NutritionData } from '../utils/api';
 import NutritionLabel from './NutritionLabel';
+import AutocompleteInput from './AutocompleteInput';
 
 interface Ingredient {
   name: string;
@@ -102,14 +103,14 @@ const NutritionCalculator = () => {
 
             {/* Name input */}
             <div style={{ flexGrow: 1, position: 'relative' }}>
-              <input
-                type="text"
+              <AutocompleteInput
                 value={ingredient.name}
-                onChange={e => handleIngredientChange(index, e.target.value)}
+                onChange={value => handleIngredientChange(index, value)}
+                onSelect={value => handleIngredientChange(index, value)}
                 placeholder="e.g. skinless chicken breast…"
                 style={inputStyle}
-                onFocus={e => Object.assign(e.target.style, focusStyle)}
-                onBlur={e => Object.assign(e.target.style, blurStyle)}
+                focusStyle={focusStyle}
+                blurStyle={blurStyle}
               />
             </div>
 
