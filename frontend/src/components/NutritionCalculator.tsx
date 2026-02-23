@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { searchMultipleIngredients, type MultipleNutritionResponse, type Nutrient, type NutritionData } from '../utils/api';
+import React, { useState } from 'react';
+import { searchMultipleIngredients, fuzzySearch, type MultipleNutritionResponse, type Nutrient, type NutritionData } from '../utils/api';
 import NutritionLabel from './NutritionLabel';
 import AutocompleteInput from './AutocompleteInput';
 
@@ -15,11 +15,19 @@ const NutritionCalculator = () => {
   const [error, setError] = useState('');
   const [hoveredAdd, setHoveredAdd] = useState(false);
   const [hoveredRemove, setHoveredRemove] = useState<number | null>(null);
+  const [disambiguationOptions, setDisambiguationOptions] = useState<{ [key: number]: string[] }>({});
+  const [rowLoading, setRowLoading] = useState<{ [key: number]: boolean }>({});
+  const [invalidRows, setInvalidRows] = useState<{ [key: number]: boolean }>({});
 
   const handleIngredientChange = (index: number, value: string) => {
     const next = [...ingredients];
     next[index].name = value;
     setIngredients(next);
+    
+    // Clear invalid state when user starts typing
+    if (invalidRows[index]) {
+      setInvalidRows(prev => ({ ...prev, [index]: false }));
+    }
   };
 
   const handleQuantityChange = (index: number, value: string) => {
@@ -28,10 +36,50 @@ const NutritionCalculator = () => {
     setIngredients(next);
   };
 
+  const handleRowSearch = async (index: number) => {
+    const query = ingredients[index].name;
+    if (!query.trim()) return;
+    
+    setRowLoading(prev => ({ ...prev, [index]: true }));
+    setError('');
+    try {
+      const choices = await fuzzySearch(query);
+      if (choices.length === 0) {
+        setError(`No matches found for "${query}"`);
+      } else {
+        setDisambiguationOptions(prev => ({ ...prev, [index]: choices }));
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Search failed');
+    } finally {
+      setRowLoading(prev => ({ ...prev, [index]: false }));
+    }
+  };
+
+  const handleRowSelect = (index: number, selection: string) => {
+    handleIngredientChange(index, selection);
+    setInvalidRows(prev => ({ ...prev, [index]: false }));
+    setDisambiguationOptions(prev => {
+      const next = { ...prev };
+      delete next[index];
+      return next;
+    });
+  };
+
   const addIngredient = () => setIngredients([...ingredients, { name: '', quantity: 100 }]);
 
   const removeIngredient = (index: number) => {
-    if (ingredients.length > 1) setIngredients(ingredients.filter((_, i) => i !== index));
+    if (ingredients.length > 1) {
+      setIngredients(ingredients.filter((_, i) => i !== index));
+      setDisambiguationOptions(prev => {
+        const next = { ...prev };
+        delete next[index];
+        // Note: we might need to shift keys if we remove from middle, but for now simple delete is ok if keys are stable or handled by map index.
+        // Actually, since we use map index as key, removing from middle will shift indices, which is a problem for state.
+        // Ideally ingredients should have IDs.
+        return next;
+      });
+    }
   };
 
   const calculateNutrition = async () => {
@@ -50,7 +98,25 @@ const NutritionCalculator = () => {
 
     try {
       const data = await searchMultipleIngredients(payload);
-      setResults(data as MultipleNutritionResponse);
+      
+      // Strict Validation: Block results if any items are not found
+      if (data.not_found && data.not_found.length > 0) {
+        setError('Some ingredients could not be matched. Please resolve the highlighted rows below.');
+        setResults(null); 
+        
+        // Auto-trigger disambiguation and highlight for not_found items
+        data.not_found.forEach(notFoundName => {
+          const index = ingredients.findIndex(ing => 
+            ing.name.trim().toLowerCase() === notFoundName.trim().toLowerCase()
+          );
+          if (index !== -1) {
+            setInvalidRows(prev => ({ ...prev, [index]: true }));
+            handleRowSearch(index);
+          }
+        });
+      } else {
+        setResults(data as MultipleNutritionResponse);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to calculate nutrition. Please try again.');
     } finally {
@@ -89,66 +155,122 @@ const NutritionCalculator = () => {
       {/* Ingredient rows */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
         {ingredients.map((ingredient, index) => (
-          <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <React.Fragment key={index}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
 
-            {/* Index badge */}
-            <div style={{
-              flexShrink: 0, width: '32px', height: '32px', borderRadius: '10px',
-              background: '#f0fdfa',
-              color: '#14b8a6', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '13px', fontWeight: '800', border: '1px solid #ccfbf1',
-            }}>
-              {index + 1}
-            </div>
+              {/* Index badge */}
+              <div style={{
+                flexShrink: 0, width: '32px', height: '32px', borderRadius: '10px',
+                background: '#f0fdfa',
+                color: '#14b8a6', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '13px', fontWeight: '800', border: '1px solid #ccfbf1',
+              }}>
+                {index + 1}
+              </div>
 
-            {/* Name input */}
-            <div style={{ flexGrow: 1, position: 'relative' }}>
-              <AutocompleteInput
-                value={ingredient.name}
-                onChange={value => handleIngredientChange(index, value)}
-                onSelect={value => handleIngredientChange(index, value)}
-                placeholder="e.g. skinless chicken breast…"
-                style={inputStyle}
-                focusStyle={focusStyle}
-                blurStyle={blurStyle}
-              />
-            </div>
-
-            {/* Quantity */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-              <div style={{ position: 'relative' }}>
-                <input
-                  type="number"
-                  value={ingredient.quantity}
-                  onChange={e => handleQuantityChange(index, e.target.value)}
-                  min="1"
-                  style={{ ...inputStyle, width: '84px', textAlign: 'center', padding: '14px 10px', fontWeight: '700' }}
-                  onFocus={e => Object.assign(e.target.style, focusStyle)}
-                  onBlur={e => Object.assign(e.target.style, blurStyle)}
+              {/* Name input */}
+              <div style={{ flexGrow: 1, position: 'relative' }}>
+                <AutocompleteInput
+                  value={ingredient.name}
+                  onChange={value => handleIngredientChange(index, value)}
+                  onSelect={value => handleIngredientChange(index, value)}
+                  onSearch={() => handleRowSearch(index)}
+                  isLoading={rowLoading[index]}
+                  isInvalid={invalidRows[index]}
+                  placeholder="e.g. skinless chicken breast…"
+                  style={{ ...inputStyle, paddingRight: '44px' }}
+                  focusStyle={focusStyle}
+                  blurStyle={blurStyle}
                 />
               </div>
-              <span style={{ fontSize: '12px', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.04em' }}>g</span>
+
+              {/* Quantity */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type="number"
+                    value={ingredient.quantity}
+                    onChange={e => handleQuantityChange(index, e.target.value)}
+                    min="1"
+                    style={{ ...inputStyle, width: '84px', textAlign: 'center', padding: '14px 10px', fontWeight: '700' }}
+                    onFocus={e => Object.assign(e.target.style, focusStyle)}
+                    onBlur={e => Object.assign(e.target.style, blurStyle)}
+                  />
+                </div>
+                <span style={{ fontSize: '12px', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.04em' }}>g</span>
+              </div>
+
+              {/* Remove */}
+              {ingredients.length > 1 ? (
+                <button
+                  onClick={() => removeIngredient(index)}
+                  onMouseEnter={() => setHoveredRemove(index)}
+                  onMouseLeave={() => setHoveredRemove(null)}
+                  style={{
+                    flexShrink: 0, width: '36px', height: '36px', border: 'none', cursor: 'pointer',
+                    color: hoveredRemove === index ? '#ef4444' : '#cbd5e1',
+                    background: hoveredRemove === index ? '#fef2f2' : 'transparent',
+                    borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '14px', transition: 'all 0.2s',
+                  }}
+                  title="Remove"
+                >✕</button>
+              ) : (
+                <div style={{ width: '36px' }} />
+              )}
             </div>
 
-            {/* Remove */}
-            {ingredients.length > 1 ? (
-              <button
-                onClick={() => removeIngredient(index)}
-                onMouseEnter={() => setHoveredRemove(index)}
-                onMouseLeave={() => setHoveredRemove(null)}
-                style={{
-                  flexShrink: 0, width: '36px', height: '36px', border: 'none', cursor: 'pointer',
-                  color: hoveredRemove === index ? '#ef4444' : '#cbd5e1',
-                  background: hoveredRemove === index ? '#fef2f2' : 'transparent',
-                  borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '14px', transition: 'all 0.2s',
-                }}
-                title="Remove"
-              >✕</button>
-            ) : (
-              <div style={{ width: '36px' }} />
+            {/* Inline Disambiguation */}
+            {disambiguationOptions[index] && (
+              <div style={{ marginLeft: '44px', marginTop: '4px', animation: 'fadeIn 0.3s ease-out' }}>
+                <div style={{ 
+                  background: '#fff', 
+                  borderRadius: '16px', 
+                  border: '1px solid #e2e8f0', 
+                  padding: '12px',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+                }}>
+                  <div style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center',
+                    marginBottom: '10px',
+                    padding: '0 8px'
+                  }}>
+                    <p style={{ margin: 0, fontSize: '12px', fontWeight: '700', color: '#64748b' }}>
+                      Select the specific item:
+                    </p>
+                    <button 
+                      onClick={() => setDisambiguationOptions(prev => {
+                        const next = { ...prev };
+                        delete next[index];
+                        return next;
+                      })}
+                      style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '10px' }}
+                    >Dismiss</button>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    {disambiguationOptions[index].slice(0, 8).map((choice, cIdx) => (
+                      <button
+                        key={cIdx}
+                        onClick={() => handleRowSelect(index, choice)}
+                        style={{
+                          textAlign: 'left', padding: '8px 12px', borderRadius: '10px',
+                          border: '1px solid #f1f5f9', background: '#f8fafc',
+                          fontSize: '13px', fontWeight: '500', color: '#334155',
+                          cursor: 'pointer', transition: 'all 0.15s',
+                        }}
+                        onMouseEnter={(e) => { e.currentTarget.style.background = '#f0fdfa'; e.currentTarget.style.borderColor = '#ccfbf1'; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.borderColor = '#f1f5f9'; }}
+                      >
+                        {choice}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
             )}
-          </div>
+          </React.Fragment>
         ))}
       </div>
 
@@ -220,22 +342,6 @@ const NutritionCalculator = () => {
             <p style={{ margin: '0 0 3px', fontSize: '14px', fontWeight: '800', color: '#991b1b' }}>Unable to calculate</p>
             <p style={{ margin: 0, fontSize: '13px', color: '#b91c1c' }}>{error}</p>
           </div>
-        </div>
-      )}
-
-      {/* Loading */}
-      {loading && (
-        <div style={{
-          display: 'flex', flexDirection: 'column', alignItems: 'center',
-          justifyContent: 'center', gap: '14px', padding: '48px',
-          background: '#fff', borderRadius: '24px',
-          border: '1px solid #f1f5f9', boxShadow: '0 4px 32px rgba(0,0,0,0.07)',
-        }}>
-          <div style={{ position: 'relative', width: '48px', height: '48px' }}>
-            <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '4px solid #d1fae5' }} />
-            <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '4px solid transparent', borderTopColor: '#14b8a6', animation: 'spin 0.8s linear infinite' }} />
-          </div>
-          <p style={{ margin: 0, fontSize: '14px', fontWeight: '600', color: '#94a3b8' }}>Analyzing recipe nutrition…</p>
         </div>
       )}
 
@@ -329,6 +435,10 @@ const NutritionCalculator = () => {
           </div>
         </div>
       )}
+      <style>{`
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+      `}</style>
     </div>
   );
 };

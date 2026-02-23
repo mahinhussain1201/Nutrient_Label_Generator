@@ -9,6 +9,9 @@ interface AutocompleteInputProps {
   style?: React.CSSProperties;
   focusStyle?: React.CSSProperties;
   blurStyle?: React.CSSProperties;
+  onSearch?: () => void;
+  isLoading?: boolean;
+  isInvalid?: boolean;
 }
 
 const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
@@ -19,6 +22,9 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
   style,
   focusStyle,
   blurStyle,
+  onSearch,
+  isLoading,
+  isInvalid,
 }) => {
   const [focused, setFocused] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -80,6 +86,7 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
   const currentStyle = {
     ...style,
     ...(focused ? focusStyle : blurStyle),
+    ...(isInvalid && { borderColor: '#f87171', background: '#fef2f2', boxShadow: '0 0 0 4px rgba(248,113,113,0.1)' }),
   };
 
   return (
@@ -94,6 +101,34 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
         placeholder={placeholder}
         style={currentStyle}
       />
+
+      {onSearch && !isLoading && (
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onSearch(); }}
+          style={{
+            position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
+            background: 'transparent', border: 'none', cursor: 'pointer',
+            color: '#14b8a6', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '4px', borderRadius: '6px', transition: 'all 0.2s',
+          }}
+          title="Show all matches"
+        >
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="9" cy="9" r="6" />
+            <path d="M14 14l3 3" />
+          </svg>
+        </button>
+      )}
+
+      {isLoading && (
+        <div style={{
+          position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
+          width: '18px', height: '18px', borderRadius: '50%',
+          border: '2.5px solid #d1fae5', borderTopColor: '#14b8a6',
+          animation: 'spin 0.8s linear infinite',
+        }} />
+      )}
 
       {showSuggestions && (
         <div style={{

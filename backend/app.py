@@ -256,11 +256,11 @@ def get_multiple_nutrition():
             if not isinstance(item, dict) or 'name' not in item:
                 continue
                 
-            name = item['name']
-            name = resolve_synonym(name)
+            original_name = item['name'].strip()
+            resolved_name = resolve_synonym(original_name)
             quantity = float(item.get('quantity_g', 100.0))
             
-            nutrition = get_nutrition_for_ingredient(name, quantity)
+            nutrition = get_nutrition_for_ingredient(resolved_name, quantity)
             if nutrition:
                 results.append(nutrition)
                 
@@ -274,7 +274,7 @@ def get_multiple_nutrition():
                         }
                     total_nutrients[nutrient_name]['amount'] += nutrient['amount']
             else:
-                not_found.append(name)
+                not_found.append(original_name)
         
         # Format total nutrients
         formatted_totals = [
@@ -288,9 +288,6 @@ def get_multiple_nutrition():
             "not_found": not_found
         }
         
-        if not results:
-            return jsonify({"error": "No matching ingredients found"}), 404
-            
         return jsonify(response)
         
     except Exception as e:
