@@ -74,3 +74,15 @@ export const fuzzySearch = async (query: string): Promise<string[]> => {
     throw error;
   }
 };
+
+export const fetchSuggestions = async (query: string): Promise<string[]> => {
+  if (query.trim().length < 2) return [];
+  try {
+    const response = await fetch(`${API_BASE_URL}/search/suggestions?q=${encodeURIComponent(query)}`);
+    if (!response.ok) return [];
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching suggestions:', error);
+    return [];
+  }
+};

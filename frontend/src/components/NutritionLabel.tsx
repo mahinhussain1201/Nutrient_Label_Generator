@@ -23,6 +23,7 @@ const NUTRIENT_META: Record<string, { color: string; bg: string; icon: string }>
 };
 
 const getMeta = (name: string) => {
+  if (!name) return { color: '#475569', bg: '#f8fafc', icon: '•' };
   for (const [key, val] of Object.entries(NUTRIENT_META)) {
     if (name.includes(key)) return val;
   }
@@ -59,6 +60,7 @@ const DV: Record<string, number> = {
 };
 
 const getDV = (name: string, amount: number): number | null => {
+  if (!name) return null;
   for (const [key, dv] of Object.entries(DV)) {
     if (name.includes(key)) return Math.min(100, Math.round((amount / dv) * 100));
   }
@@ -73,7 +75,7 @@ const NutritionLabel: React.FC<NutritionLabelProps> = ({ data }) => {
     ? multiData!.total_nutrients ?? []
     : (data as NutritionData).nutrients ?? [];
 
-  const calories = nutrientList.find(n => n.name.includes('Energy'));
+  const calories = nutrientList.find(n => n.name && n.name.includes('Energy'));
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -164,6 +166,7 @@ const NutritionLabel: React.FC<NutritionLabelProps> = ({ data }) => {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
           {nutrientList.map((nutrient, index) => {
+            if (!nutrient.name) return null;
             const meta = getMeta(nutrient.name);
             const dv = getDV(nutrient.name, nutrient.amount);
             const isCalorie = nutrient.name.includes('Energy');

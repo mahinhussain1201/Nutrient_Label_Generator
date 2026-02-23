@@ -51,10 +51,12 @@ def get_nutrition_for_ingredient(ingredient_name: str, quantity_g: float = 100.0
                 FROM food_json
                 WHERE LOWER(data->>'orig_food_common_name') = LOWER(%s)
                 AND data->>'source_type' IN ('Nutrient', 'Compound')
+                AND data->>'orig_source_name' IS NOT NULL
             )
             SELECT nutrient, value_per_100g, unit, citation
             FROM ranked_matches
             WHERE source_rank = (SELECT MIN(source_rank) FROM ranked_matches)
+            AND nutrient IS NOT NULL
             """
             app.logger.info(f"Searching for ingredient: {ingredient_name}")
             cur.execute(query, (ingredient_name,))
@@ -89,6 +91,39 @@ def get_nutrition_for_ingredient(ingredient_name: str, quantity_g: float = 100.0
     except Exception as e:
         app.logger.error(f"Error getting nutrition for {ingredient_name}: {str(e)}")
         return None
+    finally:
+        if 'conn' in locals():
+            conn.close()
+
+@app.route('/api/search/suggestions', methods=['GET'])
+def search_suggestions():
+    """
+    Get autocomplete suggestions for food names.
+    Query parameters:
+    - q: Search query
+    """
+    query_str = request.args.get('q', '').strip()
+    if not query_str or len(query_str) < 2:
+        return jsonify([])
+        
+    try:
+        conn = get_db_connection()
+        with conn.cursor() as cur:
+            # Use trigram similarity for fuzzy matching and order by relevance
+            # We distinct common name to avoid duplicates
+            query = """
+            SELECT DISTINCT data->>'orig_food_common_name' as name
+            FROM food_json
+            WHERE lower(data->>'orig_food_common_name') LIKE lower(%s)
+            ORDER BY name
+            LIMIT 10
+            """
+            cur.execute(query, ('%' + query_str + '%',))
+            results = cur.fetchall()
+            return jsonify([row[0] for row in results])
+    except Exception as e:
+        app.logger.error(f"Error in /api/search/suggestions: {str(e)}")
+        return jsonify([])
     finally:
         if 'conn' in locals():
             conn.close()
