@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { searchMultipleIngredients, fuzzySearch, type MultipleNutritionResponse, type Nutrient, type NutritionData } from '../utils/api';
 import NutritionLabel from './NutritionLabel';
 import AutocompleteInput from './AutocompleteInput';
@@ -18,6 +18,26 @@ const NutritionCalculator = () => {
   const [disambiguationOptions, setDisambiguationOptions] = useState<{ [key: number]: string[] }>({});
   const [rowLoading, setRowLoading] = useState<{ [key: number]: boolean }>({});
   const [invalidRows, setInvalidRows] = useState<{ [key: number]: boolean }>({});
+
+  // Persistence: Load on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('recipe_ingredients');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setIngredients(parsed);
+        }
+      } catch (e) {
+        console.error('Failed to load saved recipe:', e);
+      }
+    }
+  }, []);
+
+  // Persistence: Save on change
+  useEffect(() => {
+    localStorage.setItem('recipe_ingredients', JSON.stringify(ingredients));
+  }, [ingredients]);
 
   const handleIngredientChange = (index: number, value: string) => {
     const next = [...ingredients];
@@ -123,6 +143,17 @@ const NutritionCalculator = () => {
       setLoading(false);
     }
   };
+  
+  const clearAll = () => {
+    if (window.confirm('Are you sure you want to clear all ingredients?')) {
+      setIngredients([{ name: '', quantity: 100 }]);
+      setResults(null);
+      setError('');
+      setInvalidRows({});
+      setDisambiguationOptions({});
+      localStorage.removeItem('recipe_ingredients');
+    }
+  };
 
   const inputStyle = {
     padding: '14px 18px',
@@ -142,14 +173,40 @@ const NutritionCalculator = () => {
   const blurStyle = { borderColor: '#e2e8f0', background: '#f8fafc', boxShadow: 'none' };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+    <div style={{
+      background: 'rgba(255, 255, 255, 0.7)',
+      backdropFilter: 'blur(10px)',
+      borderRadius: '24px',
+      padding: '32px',
+      boxShadow: '0 4px 24px rgba(0,0,0,0.04)',
+      border: '1px solid rgba(255, 255, 255, 0.8)',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '28px'
+    }}>
 
-      {/* Section label */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <div style={{ width: '4px', height: '14px', background: '#14b8a6', borderRadius: '4px' }} />
-        <p style={{ margin: 0, fontSize: '11px', fontWeight: '800', color: '#94a3b8', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-          Ingredient List
-        </p>
+      {/* Header with Clear All */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ width: '4px', height: '14px', background: '#14b8a6', borderRadius: '4px' }} />
+          <p style={{ margin: 0, fontSize: '11px', fontWeight: '800', color: '#94a3b8', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+            Recipe Builder
+          </p>
+        </div>
+        {ingredients.length > 1 || ingredients[0].name ? (
+          <button
+            onClick={clearAll}
+            style={{
+              padding: '8px 16px', borderRadius: '12px', border: '1px solid #fee2e2',
+              background: '#fff', color: '#ef4444', fontSize: '12px', fontWeight: '700',
+              cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '6px'
+            }}
+            onMouseEnter={e => (e.currentTarget.style.background = '#fef2f2')}
+            onMouseLeave={e => (e.currentTarget.style.background = '#fff')}
+          >
+            🗑️ Clear
+          </button>
+        ) : null}
       </div>
 
       {/* Ingredient rows */}
@@ -299,30 +356,25 @@ const NutritionCalculator = () => {
           onClick={calculateNutrition}
           disabled={loading}
           style={{
-            padding: '14px 32px', borderRadius: '16px', border: 'none',
+            padding: '16px 32px', borderRadius: '18px', border: 'none',
             cursor: loading ? 'not-allowed' : 'pointer',
-            fontSize: '15px', fontWeight: '800', letterSpacing: '0.01em', color: '#fff',
-            background: loading ? '#cbd5e1' : 'linear-gradient(135deg, #34d399, #14b8a6)',
-            boxShadow: loading ? 'none' : '0 4px 14px rgba(20,184,166,0.3)',
-            transition: 'all 0.3s',
-            display: 'flex', alignItems: 'center', gap: '8px',
+            fontSize: '16px', fontWeight: '800', letterSpacing: '0.01em', color: '#fff',
+            background: loading ? '#cbd5e1' : 'linear-gradient(135deg, #10b981, #059669)',
+            boxShadow: loading ? 'none' : '0 10px 20px rgba(16,185,129,0.2)',
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
+            width: ingredients.length > 3 ? '100%' : 'auto'
           }}
+          onMouseEnter={e => !loading && (e.currentTarget.style.transform = 'translateY(-2px)')}
+          onMouseLeave={e => !loading && (e.currentTarget.style.transform = 'translateY(0)')}
         >
           {loading ? (
             <>
-              <svg style={{ animation: 'spin 1s linear infinite' }} width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.3" />
-                <path d="M4 12a8 8 0 018-8" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-              </svg>
-              Calculating…
+              <div style={{ width: '20px', height: '20px', border: '3px solid #fff', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+              Calculating...
             </>
           ) : (
-            <>
-              Calculate Totals
-              <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
-              </svg>
-            </>
+            <>🏷️ Calculate Recipe Totals</>
           )}
         </button>
       </div>

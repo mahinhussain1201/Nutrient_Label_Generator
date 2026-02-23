@@ -18,7 +18,6 @@ function App() {
   const [nutritionData, setNutritionData] = useState<NutritionData | MultipleNutritionResponse | null>(null);
   const [searchChoices, setSearchChoices] = useState<string[]>([]);
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
-  const [hoveredHistory, setHoveredHistory] = useState<number | null>(null);
 
   const fetchNutrition = async (foodName: string) => {
     setIsLoading(true);
@@ -47,10 +46,8 @@ function App() {
       if (choices.length === 0) {
         setError(`No matches found for "${query}"`);
       } else if (choices.length === 1) {
-        // Exact unique match found
         await fetchNutrition(choices[0]);
       } else {
-        // Multiple matches found, show selector
         setSearchChoices(choices);
       }
     } catch (err) {
@@ -74,37 +71,40 @@ function App() {
 
   return (
     <div style={{
-      fontFamily: "'Inter', system-ui, sans-serif",
       minHeight: '100vh',
-      background: 'linear-gradient(160deg, #ecfdf5 0%, #f0fdfa 40%, #ecfeff 100%)',
-      display: 'flex', flexDirection: 'column',
+      background: 'radial-gradient(at 0% 0%, #f0fdfa 0px, transparent 50%), radial-gradient(at 100% 100%, #f0f9ff 0px, transparent 50%), #fff',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      padding: '60px 20px',
+      fontFamily: '"Inter", sans-serif',
+      color: '#1e293b'
     }}>
+      {/* Header Area */}
+      <div style={{ textAlign: 'center', marginBottom: '60px', animation: 'fadeIn 0.8s ease-out' }}>
+        <h1 style={{
+          fontSize: '48px', fontWeight: '900', margin: '0 0 16px',
+          background: 'linear-gradient(135deg, #10b981, #14b8a6, #0ea5e9)',
+          WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+          letterSpacing: '-0.04em'
+        }}>
+          Nutritive
+        </h1>
+        <p style={{ fontSize: '18px', color: '#64748b', fontWeight: '500', maxWidth: '500px', margin: '0 auto' }}>
+          Create professional nutritional labels with scientific precision and effortless clarity.
+        </p>
+      </div>
 
-      {/* ── MAIN ── */}
-      <main style={{ flexGrow: 1, width: '100%', maxWidth: '860px', margin: '0 auto', padding: '56px 20px 40px' }}>
-
-        {/* Hero header */}
-        <header style={{ textAlign: 'center', marginBottom: '48px' }}>
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-            width: '64px', height: '64px', borderRadius: '20px', marginBottom: '20px',
-            background: 'linear-gradient(135deg, #34d399, #14b8a6)',
-            fontSize: '30px', boxShadow: '0 8px 24px rgba(20,184,166,0.3)',
-          }}>🥗</div>
-          <h1 style={{ margin: '0 0 10px', fontSize: '42px', fontWeight: '900', color: '#0f172a', letterSpacing: '-0.03em', lineHeight: 1 }}>
-            Nutri<span style={{ background: 'linear-gradient(135deg, #34d399, #14b8a6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Calc</span>
-          </h1>
-          <p style={{ margin: 0, fontSize: '16px', color: '#94a3b8', fontWeight: '400', maxWidth: '440px', margin: '0 auto', lineHeight: 1.6 }}>
-            Professional-grade nutritional analysis for single foods and complex recipes.
-          </p>
-        </header>
-
-        {/* Tab switcher */}
+      <div style={{
+        width: '100%', maxWidth: '1000px',
+        display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: '40px'
+      }}>
+        
+        {/* Navigation Switcher */}
         <div style={{
-          display: 'flex', gap: '6px', padding: '6px',
-          background: '#fff', border: '1px solid #e2e8f0',
-          borderRadius: '18px', boxShadow: '0 2px 12px rgba(0,0,0,0.05)',
-          maxWidth: '380px', margin: '0 auto 36px',
+          display: 'flex', background: 'rgba(241, 245, 249, 0.5)', 
+          backdropFilter: 'blur(8px)', borderRadius: '16px', padding: '6px',
+          margin: '0 auto 10px'
         }}>
           {(['search', 'calculator'] as const).map(tab => {
             const active = activeTab === tab;
@@ -113,12 +113,11 @@ function App() {
                 key={tab}
                 onClick={() => { setActiveTab(tab); setError(null); setNutritionData(null); setSearchChoices([]); }}
                 style={{
-                  flex: 1, padding: '10px 20px', borderRadius: '13px', border: 'none',
-                  fontSize: '13px', fontWeight: '700', cursor: 'pointer', letterSpacing: '0.01em',
-                  background: active ? 'linear-gradient(135deg, #34d399, #14b8a6)' : 'transparent',
-                  color: active ? '#fff' : '#94a3b8',
-                  boxShadow: active ? '0 3px 10px rgba(20,184,166,0.3)' : 'none',
-                  transition: 'all 0.2s',
+                  padding: '10px 24px', borderRadius: '12px', border: 'none',
+                  background: active ? '#fff' : 'transparent',
+                  boxShadow: active ? '0 4px 12px rgba(0,0,0,0.05)' : 'none',
+                  color: active ? '#0f172a' : '#64748b',
+                  fontWeight: '700', fontSize: '14px', cursor: 'pointer', transition: 'all 0.3s'
                 }}
               >
                 {tab === 'search' ? '🔍 Food Search' : '🧾 Recipe Builder'}
@@ -127,130 +126,81 @@ function App() {
           })}
         </div>
 
-        {/* Tab content */}
-        <div style={{ minHeight: '500px' }}>
-
-          {/* ── SEARCH TAB ── */}
-          {activeTab === 'search' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-
-              {/* Search card */}
-              <div style={{
-                background: '#fff', borderRadius: '24px',
-                border: '1px solid #f1f5f9',
-                boxShadow: '0 4px 32px rgba(0,0,0,0.07)',
-                padding: '28px',
-              }}>
-                <SearchBar onSearch={handleSearch} isLoading={isLoading} />
-
-                {/* Search history */}
-                {searchHistory.length > 0 && (
-                  <div style={{ marginTop: '20px', paddingTop: '18px', borderTop: '1px solid #f8fafc', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontSize: '11px', fontWeight: '700', color: '#cbd5e1', textTransform: 'uppercase', letterSpacing: '0.08em', marginRight: '4px' }}>Recent:</span>
-                    {searchHistory.map((item, i) => (
-                      <button
-                        key={i}
-                        onClick={() => handleSearch(item)}
-                        onMouseEnter={() => setHoveredHistory(i)}
-                        onMouseLeave={() => setHoveredHistory(null)}
-                        style={{
-                          padding: '4px 12px', borderRadius: '20px', border: '1px solid',
-                          fontSize: '12px', fontWeight: '600', cursor: 'pointer',
-                          background: hoveredHistory === i ? '#ecfdf5' : '#f8fafc',
-                          borderColor: hoveredHistory === i ? '#6ee7b7' : '#e2e8f0',
-                          color: hoveredHistory === i ? '#065f46' : '#64748b',
-                          transition: 'all 0.15s',
-                        }}
-                      >{item}</button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Loading */}
-              {isLoading && (
-                <div style={{
-                  display: 'flex', flexDirection: 'column', alignItems: 'center',
-                  justifyContent: 'center', gap: '14px', padding: '48px',
-                  background: '#fff', borderRadius: '24px',
-                  border: '1px solid #f1f5f9', boxShadow: '0 4px 32px rgba(0,0,0,0.07)',
-                }}>
-                  <div style={{ position: 'relative', width: '48px', height: '48px' }}>
-                    <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '4px solid #d1fae5' }} />
-                    <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '4px solid transparent', borderTopColor: '#14b8a6', animation: 'spin 0.8s linear infinite' }} />
-                  </div>
-                  <p style={{ margin: 0, fontSize: '14px', fontWeight: '600', color: '#94a3b8' }}>Analyzing nutritional data…</p>
-                </div>
-              )}
-
-              {/* Error */}
-              {error && !isLoading && (
-                <div style={{
-                  display: 'flex', gap: '14px', alignItems: 'flex-start',
-                  background: '#fef2f2', border: '1px solid #fecaca',
-                  borderRadius: '18px', padding: '18px 20px',
-                }}>
-                  <div style={{ flexShrink: 0, width: '32px', height: '32px', borderRadius: '10px', background: '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px' }}>⚠️</div>
-                  <div>
-                    <p style={{ margin: '0 0 3px', fontSize: '14px', fontWeight: '800', color: '#991b1b' }}>Unable to fetch data</p>
-                    <p style={{ margin: 0, fontSize: '13px', color: '#b91c1c' }}>{error}</p>
-                  </div>
-                </div>
-              )}
-
-              {/* Disambiguation */}
-              {searchChoices.length > 0 && !isLoading && (
-                <div style={{ animation: 'fadeIn 0.3s ease-out' }}>
-                  <FoodSelector 
-                    items={searchChoices} 
-                    onSelect={fetchNutrition} 
-                    isLoading={isLoading} 
-                  />
-                </div>
-              )}
-
-              {/* Results */}
-              {nutritionData && !isLoading && (
-                <div style={{
-                  background: '#fff', borderRadius: '24px',
-                  border: '1px solid #f1f5f9',
-                  boxShadow: '0 4px 32px rgba(0,0,0,0.07)',
-                  padding: '28px',
-                  animation: 'fadeIn 0.4s ease-out',
-                }}>
-                  <NutritionLabel data={nutritionData} />
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* ── CALCULATOR TAB ── */}
-          {activeTab === 'calculator' && (
-            <div style={{
-              background: '#fff', borderRadius: '24px',
-              border: '1px solid #f1f5f9',
-              boxShadow: '0 4px 32px rgba(0,0,0,0.07)',
-              padding: '28px',
+        {activeTab === 'search' ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '40px', alignItems: 'center' }}>
+            <div style={{ 
+              width: '100%', maxWidth: '600px', background: 'rgba(255, 255, 255, 0.7)',
+              backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.8)',
+              borderRadius: '24px', padding: '24px', boxShadow: '0 4px 24px rgba(0,0,0,0.03)'
             }}>
-              <NutritionCalculator />
+              <SearchBar onSearch={handleSearch} isLoading={isLoading} />
+              
+              {/* Recent searches */}
+              {searchHistory.length > 0 && (
+                <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: '11px', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Recent:</span>
+                  {searchHistory.map((item, i) => (
+                    <button
+                      key={i}
+                      onClick={() => handleSearch(item)}
+                      style={{
+                        padding: '4px 12px', borderRadius: '20px', border: '1px solid #e2e8f0',
+                        fontSize: '11px', fontWeight: '600', color: '#64748b', background: '#fff',
+                        cursor: 'pointer', transition: 'all 0.2s'
+                      }}
+                      onMouseEnter={e => (e.currentTarget.style.borderColor = '#10b981')}
+                      onMouseLeave={e => (e.currentTarget.style.borderColor = '#e2e8f0')}
+                    >{item}</button>
+                  ))}
+                </div>
+              )}
             </div>
-          )}
-        </div>
-      </main>
 
-      {/* ── FOOTER ── */}
-      <footer style={{
-        padding: '24px 20px', textAlign: 'center',
-        borderTop: '1px solid #f1f5f9',
-      }}>
-        <p style={{ margin: 0, fontSize: '12px', color: '#cbd5e1', fontWeight: '500' }}>
-          © {new Date().getFullYear()} NutriCalc — Data generated for educational purposes.
-        </p>
+            {isLoading && (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px', padding: '40px' }}>
+                <div style={{ width: '40px', height: '40px', border: '4px solid #f0fdfa', borderTopColor: '#14b8a6', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                <p style={{ margin: 0, fontSize: '14px', fontWeight: '600', color: '#94a3b8' }}>Analyzing nutrients…</p>
+              </div>
+            )}
+            
+            {searchChoices.length > 0 && !isLoading && (
+              <div style={{ width: '100%', maxWidth: '600px', animation: 'fadeIn 0.5s ease-out' }}>
+                <FoodSelector items={searchChoices} onSelect={fetchNutrition} isLoading={isLoading} />
+              </div>
+            )}
+
+            {nutritionData && !isLoading && (
+              <div style={{ animation: 'fadeIn 0.5s ease-out', width: '100%', display: 'flex', justifyContent: 'center' }}>
+                <NutritionLabel data={nutritionData} />
+              </div>
+            )}
+          </div>
+        ) : (
+          <div style={{ animation: 'fadeIn 0.5s ease-out' }}>
+            <NutritionCalculator />
+          </div>
+        )}
+      </div>
+
+      {error && !isLoading && (
+        <div style={{
+          marginTop: '32px', padding: '16px 24px', background: '#fef2f2',
+          border: '1px solid #fee2e2', borderRadius: '16px', color: '#ef4444',
+          fontSize: '14px', fontWeight: '600', animation: 'fadeIn 0.3s ease-out'
+        }}>
+          ⚠️ {error}
+        </div>
+      )}
+
+      {/* Footer */}
+      <footer style={{ marginTop: '80px', textAlign: 'center', color: '#94a3b8', fontSize: '13px' }}>
+        <p>© {new Date().getFullYear()} Nutritive — Professional Nutritional Analytics</p>
       </footer>
 
       <style>{`
-        @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        body { margin: 0; background: #fff; }
       `}</style>
     </div>
   );

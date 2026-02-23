@@ -5,6 +5,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
 from typing import Dict, List, Optional, Union, Any
+from functools import lru_cache
 import json
 # Load environment variables
 load_dotenv()
@@ -44,6 +45,7 @@ def get_db_connection():
         app.logger.error(f"Error connecting to database: {e}")
         raise
 
+@lru_cache(maxsize=1024)
 def get_nutrition_for_ingredient(ingredient_name: str, quantity_g: float = 100.0) -> Optional[Dict]:
     """
     Get nutrition information for a single ingredient with source prioritization.
