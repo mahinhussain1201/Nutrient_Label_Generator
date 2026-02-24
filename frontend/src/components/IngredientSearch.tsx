@@ -289,7 +289,6 @@ export default function IngredientSearch({ onAddIngredient }: IngredientSearchPr
           disabled={!canAdd}
           style={{
             padding: '12px 20px',
-            border: 'none', borderRadius: '14px',
             fontSize: '14px', fontWeight: '700',
             cursor: canAdd ? 'pointer' : 'not-allowed',
             background: justAdded
