@@ -6,3 +6,5 @@ backend/env
 backend/.DS_Store
 database.txt
 frontend.dist
+__pycache__
+backend/.pytest_cache
