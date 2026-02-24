@@ -53,21 +53,6 @@ const formatAmount = (amount: number, unit: string): string => {
   return `${val} ${unit === 'kcal' ? 'cal' : unit}`;
 };
 
-const DV_LIMITS: Record<string, number> = {
-  'Energy': 2000, 'Protein': 50, 'Total lipid': 78,
-  'Carbohydrate': 275, 'Fiber': 28, 'Sugars': 50,
-  'Fatty acids': 20, 'Cholesterol': 300, 'Sodium': 2300,
-  'Calcium': 1300, 'Iron': 18, 'Potassium': 4700,
-  'Vitamin C': 90, 'Vitamin A': 900,
-};
-
-const calculateDV = (name: string, amount: number): number | null => {
-  if (!name) return null;
-  for (const [key, dv] of Object.entries(DV_LIMITS)) {
-    if (name.includes(key)) return Math.min(100, Math.round((amount / dv) * 100));
-  }
-  return null;
-};
 
 const NutritionLabel: React.FC<NutritionLabelProps> = ({ data, showAlert }) => {
   const isMultiple =
@@ -247,15 +232,11 @@ const NutritionLabel: React.FC<NutritionLabelProps> = ({ data, showAlert }) => {
             <span style={{ fontSize: '11px', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', minWidth: '80px', textAlign: 'right' }}>
               Amount
             </span>
-            <span style={{ fontSize: '11px', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', minWidth: '44px', textAlign: 'right' }}>
-              % DV
-            </span>
           </div>
         </div>
 
         {visibleNutrients.map((nutrient, index) => {
           const meta = getMeta(nutrient.name);
-          const dv = calculateDV(nutrient.name, nutrient.amount);
           const isLast = index === visibleNutrients.length - 1;
 
           return (
@@ -267,7 +248,7 @@ const NutritionLabel: React.FC<NutritionLabelProps> = ({ data, showAlert }) => {
               }}
             >
               {/* Row */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: dv !== null ? '8px' : '0' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 {/* Left: icon + name */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <div style={{
@@ -292,35 +273,8 @@ const NutritionLabel: React.FC<NutritionLabelProps> = ({ data, showAlert }) => {
                   }}>
                     {formatAmount(nutrient.amount, nutrient.unit)}
                   </span>
-                  <span style={{
-                    fontSize: '12px', fontWeight: '800',
-                    color: dv !== null ? '#475569' : '#cbd5e1',
-                    minWidth: '44px', textAlign: 'right',
-                  }}>
-                    {dv !== null ? `${dv}%` : '—'}
-                  </span>
                 </div>
               </div>
-
-              {/* Progress bar */}
-              {dv !== null && (
-                <div style={{
-                  marginLeft: '40px',
-                  height: '5px',
-                  background: '#f1f5f9',
-                  borderRadius: '99px',
-                  overflow: 'hidden',
-                }}>
-                  <div style={{
-                    width: `${dv}%`,
-                    height: '100%',
-                    background: meta.color,
-                    borderRadius: '99px',
-                    transition: 'width 1s ease-out',
-                    opacity: 0.85,
-                  }} />
-                </div>
-              )}
             </div>
           );
         })}
@@ -336,7 +290,7 @@ const NutritionLabel: React.FC<NutritionLabelProps> = ({ data, showAlert }) => {
           margin: 0, fontSize: '10px', color: '#94a3b8',
           fontStyle: 'italic', lineHeight: 1.6,
         }}>
-          * The % Daily Value (DV) tells you how much a nutrient in a serving of food contributes to a daily diet. 2,000 calories a day is used for general nutrition advice.
+          * Values are rounded for clarity. Nutritional data is obtained from multiple verified sources.
         </p>
       </div>
     </div>
