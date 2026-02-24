@@ -172,6 +172,12 @@ def search_suggestions():
             WHERE lower(data->>'orig_food_common_name') LIKE lower(%s)
             AND data->>'orig_source_name' IS NOT NULL
             AND data->>'source_type' IN ('Nutrient', 'Compound')
+            GROUP BY data->>'orig_food_common_name'
+            HAVING COUNT(DISTINCT CASE 
+                WHEN (data->>'standard_content')::float > 0 
+                AND data->>'source_type' IN ('Nutrient', 'Compound') 
+                THEN data->>'orig_source_name' 
+            END) >= 2
             ORDER BY name
             LIMIT 10
             """
@@ -202,11 +208,17 @@ def search_fuzzy():
         with conn.cursor() as cur:
             # First try exact match (case insensitive)
             exact_query = """
-            SELECT DISTINCT data->>'orig_food_common_name'
+            SELECT data->>'orig_food_common_name'
             FROM food_json
             WHERE LOWER(data->>'orig_food_common_name') = LOWER(%s)
             AND data->>'orig_source_name' IS NOT NULL
             AND data->>'source_type' IN ('Nutrient', 'Compound')
+            GROUP BY data->>'orig_food_common_name'
+            HAVING COUNT(DISTINCT CASE 
+                WHEN (data->>'standard_content')::float > 0 
+                AND data->>'source_type' IN ('Nutrient', 'Compound') 
+                THEN data->>'orig_source_name' 
+            END) >= 2
             LIMIT 1
             """
             cur.execute(exact_query, (query_str,))
@@ -217,13 +229,19 @@ def search_fuzzy():
             # If no exact match, use trigram similarity and ILIKE for fuzzy search
             fuzzy_query = """
             SELECT name FROM (
-                SELECT DISTINCT data->>'orig_food_common_name' as name,
+                SELECT data->>'orig_food_common_name' as name,
                        similarity(data->>'orig_food_common_name', %s) as score
                 FROM food_json
                 WHERE (data->>'orig_food_common_name' ILIKE %s
                 OR similarity(data->>'orig_food_common_name', %s) > 0.3)
                 AND data->>'orig_source_name' IS NOT NULL
                 AND data->>'source_type' IN ('Nutrient', 'Compound')
+                GROUP BY data->>'orig_food_common_name'
+                HAVING COUNT(DISTINCT CASE 
+                    WHEN (data->>'standard_content')::float > 0 
+                    AND data->>'source_type' IN ('Nutrient', 'Compound') 
+                    THEN data->>'orig_source_name' 
+                END) >= 2
             ) sub
             ORDER BY score DESC, name
             LIMIT 15
