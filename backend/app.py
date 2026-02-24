@@ -177,7 +177,14 @@ def search_suggestions():
                 WHEN (data->>'standard_content')::float > 0 
                 AND data->>'source_type' IN ('Nutrient', 'Compound') 
                 THEN data->>'orig_source_name' 
-            END) >= 2
+            END) >= 3
+            AND COUNT(DISTINCT CASE 
+                WHEN (data->>'standard_content')::float > 0 
+                AND (data->>'orig_source_name' ILIKE '%%Energy%%' 
+                     OR data->>'orig_source_name' ILIKE '%%Protein%%' 
+                     OR data->>'orig_source_name' ILIKE '%%Carbohydrate%%')
+                THEN data->>'orig_source_name'
+            END) >= 1
             ORDER BY name
             LIMIT 10
             """
@@ -218,7 +225,14 @@ def search_fuzzy():
                 WHEN (data->>'standard_content')::float > 0 
                 AND data->>'source_type' IN ('Nutrient', 'Compound') 
                 THEN data->>'orig_source_name' 
-            END) >= 2
+            END) >= 3
+            AND COUNT(DISTINCT CASE 
+                WHEN (data->>'standard_content')::float > 0 
+                AND (data->>'orig_source_name' ILIKE '%%Energy%%' 
+                     OR data->>'orig_source_name' ILIKE '%%Protein%%' 
+                     OR data->>'orig_source_name' ILIKE '%%Carbohydrate%%')
+                THEN data->>'orig_source_name'
+            END) >= 1
             LIMIT 1
             """
             cur.execute(exact_query, (query_str,))
@@ -241,7 +255,14 @@ def search_fuzzy():
                     WHEN (data->>'standard_content')::float > 0 
                     AND data->>'source_type' IN ('Nutrient', 'Compound') 
                     THEN data->>'orig_source_name' 
-                END) >= 2
+                END) >= 3
+                AND COUNT(DISTINCT CASE 
+                    WHEN (data->>'standard_content')::float > 0 
+                    AND (data->>'orig_source_name' ILIKE '%%Energy%%' 
+                         OR data->>'orig_source_name' ILIKE '%%Protein%%' 
+                         OR data->>'orig_source_name' ILIKE '%%Carbohydrate%%')
+                    THEN data->>'orig_source_name'
+                END) >= 1
             ) sub
             ORDER BY score DESC, name
             LIMIT 15
