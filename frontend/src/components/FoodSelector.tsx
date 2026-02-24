@@ -15,31 +15,28 @@ const FoodSelector: React.FC<FoodSelectorProps> = ({ items, onSelect, isLoading 
     setTimeout(() => onSelect(item), 150);
   };
 
-  // Loading state
   if (isLoading) {
     return (
       <div style={{
-        fontFamily: "'Inter', system-ui, sans-serif",
+        fontFamily: "'DM Sans', 'Outfit', ui-sans-serif, system-ui, sans-serif",
         display: 'flex', flexDirection: 'column', alignItems: 'center',
         justifyContent: 'center', gap: '14px', padding: '48px 20px',
-        background: '#fff', borderRadius: '22px',
-        border: '1px solid #f1f5f9',
-        boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
+        background: '#ffffff', borderRadius: '22px',
+        border: '1.5px solid #e2e8f0',
+        boxShadow: '0 2px 12px rgba(0,0,0,0.04)',
       }}>
-        <div style={{ position: 'relative', width: '44px', height: '44px' }}>
+        <div style={{ position: 'relative', width: '40px', height: '40px' }}>
+          <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '3px solid #d1fae5' }} />
           <div style={{
             position: 'absolute', inset: 0, borderRadius: '50%',
-            border: '3px solid #d1fae5',
-          }} />
-          <div style={{
-            position: 'absolute', inset: 0, borderRadius: '50%',
-            border: '3px solid transparent',
-            borderTopColor: '#14b8a6',
-            animation: 'spin 0.8s linear infinite',
+            border: '3px solid transparent', borderTopColor: '#059669',
+            animation: 'fs-spin 0.75s linear infinite',
           }} />
         </div>
-        <p style={{ margin: 0, fontSize: '14px', fontWeight: '600', color: '#94a3b8' }}>Finding matches…</p>
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        <p style={{ margin: 0, fontSize: '13px', fontWeight: '600', color: '#94a3b8', letterSpacing: '0.01em' }}>
+          Finding matches…
+        </p>
+        <style>{`@keyframes fs-spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
   }
@@ -48,51 +45,61 @@ const FoodSelector: React.FC<FoodSelectorProps> = ({ items, onSelect, isLoading 
 
   return (
     <div style={{
-      fontFamily: "'Inter', system-ui, sans-serif",
+      fontFamily: "'DM Sans', 'Outfit', ui-sans-serif, system-ui, sans-serif",
       width: '100%', maxWidth: '640px', margin: '0 auto',
-      background: '#fff', borderRadius: '22px', overflow: 'hidden',
-      border: '1px solid #f1f5f9',
-      boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
+      background: '#ffffff', borderRadius: '22px', overflow: 'hidden',
+      border: '1.5px solid #e2e8f0',
+      boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
     }}>
 
-      {/* Header */}
+      {/* ── Header ────────────────────────────────────────── */}
       <div style={{
-        padding: '20px 24px',
-        background: 'linear-gradient(135deg, #0f172a, #1e293b)',
-        position: 'relative', overflow: 'hidden',
+        padding: '18px 22px',
+        background: '#f8fafb',
+        borderBottom: '1px solid #e9eef4',
+        display: 'flex', alignItems: 'center', gap: '12px',
       }}>
-        <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '90px', height: '90px', borderRadius: '50%', background: 'rgba(52,211,153,0.07)' }} />
-        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{
-            width: '36px', height: '36px', borderRadius: '11px', flexShrink: 0,
-            background: 'linear-gradient(135deg, #34d399, #14b8a6)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '18px', boxShadow: '0 3px 10px rgba(20,184,166,0.35)',
-          }}>🔍</div>
-          <div>
-            <h3 style={{ margin: '0 0 2px', fontSize: '15px', fontWeight: '800', color: '#fff' }}>
-              Multiple matches found
-            </h3>
-            <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>
-              Select the specific item you meant
-            </p>
-          </div>
-          <div style={{ marginLeft: 'auto', flexShrink: 0 }}>
-            <span style={{
-              fontSize: '12px', fontWeight: '700',
-              background: 'rgba(52,211,153,0.15)', color: '#34d399',
-              border: '1px solid rgba(52,211,153,0.25)',
-              borderRadius: '20px', padding: '3px 10px',
-            }}>{items.length} results</span>
-          </div>
+        {/* Icon */}
+        <div style={{
+          width: '34px', height: '34px', borderRadius: '10px', flexShrink: 0,
+          background: 'linear-gradient(135deg, #10b981, #059669)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 2px 8px rgba(5,150,105,0.25)',
+        }}>
+          <svg width="15" height="15" viewBox="0 0 20 20" fill="white">
+            <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+          </svg>
         </div>
+
+        {/* Text */}
+        <div style={{ flex: 1 }}>
+          <h3 style={{ margin: '0 0 2px', fontSize: '14px', fontWeight: '800', color: '#0f172a', letterSpacing: '-0.01em' }}>
+            Multiple matches found
+          </h3>
+          <p style={{ margin: 0, fontSize: '12px', color: '#94a3b8', fontWeight: '500' }}>
+            Select the specific item you meant
+          </p>
+        </div>
+
+        {/* Count badge */}
+        <span style={{
+          fontSize: '11px', fontWeight: '700',
+          background: '#f0fdf9', color: '#059669',
+          border: '1px solid #a7f3d0',
+          borderRadius: '100px', padding: '3px 11px',
+          letterSpacing: '0.02em', flexShrink: 0,
+        }}>
+          {items.length} results
+        </span>
       </div>
 
-      {/* List */}
-      <div style={{ maxHeight: '380px', overflowY: 'auto' }}>
+      {/* ── List ──────────────────────────────────────────── */}
+      <div style={{ maxHeight: '360px', overflowY: 'auto' }}>
         {items.map((item, index) => {
           const isHovered = hoveredIndex === index;
           const isSelected = selectedIndex === index;
+          const isActive = isHovered || isSelected;
+
           return (
             <button
               key={index}
@@ -101,43 +108,54 @@ const FoodSelector: React.FC<FoodSelectorProps> = ({ items, onSelect, isLoading 
               onMouseLeave={() => setHoveredIndex(null)}
               style={{
                 width: '100%', textAlign: 'left',
-                display: 'flex', alignItems: 'center', gap: '14px',
-                padding: '13px 20px',
-                background: isSelected ? '#ecfdf5' : isHovered ? '#f8fafc' : '#fff',
+                display: 'flex', alignItems: 'center', gap: '12px',
+                padding: '12px 20px',
+                background: isSelected ? '#f0fdf9' : isHovered ? '#f8fafc' : '#ffffff',
                 border: 'none',
                 borderBottom: index < items.length - 1 ? '1px solid #f8fafc' : 'none',
                 cursor: 'pointer',
-                transition: 'background 0.12s',
+                transition: 'background 0.12s ease',
+                fontFamily: 'inherit',
               }}
             >
               {/* Index badge */}
               <div style={{
-                flexShrink: 0, width: '26px', height: '26px', borderRadius: '8px',
-                background: isHovered || isSelected ? 'linear-gradient(135deg, #34d399, #14b8a6)' : '#f1f5f9',
-                color: isHovered || isSelected ? '#fff' : '#94a3b8',
+                flexShrink: 0, width: '24px', height: '24px', borderRadius: '7px',
+                background: isActive
+                  ? 'linear-gradient(135deg, #10b981, #059669)'
+                  : '#f1f5f9',
+                color: isActive ? '#ffffff' : '#94a3b8',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: '11px', fontWeight: '800',
-                transition: 'all 0.15s',
-                boxShadow: isHovered ? '0 2px 8px rgba(20,184,166,0.3)' : 'none',
-              }}>{index + 1}</div>
+                fontSize: '10px', fontWeight: '800',
+                transition: 'all 0.15s ease',
+                boxShadow: isActive ? '0 2px 6px rgba(5,150,105,0.28)' : 'none',
+              }}>
+                {isSelected
+                  ? <svg width="10" height="10" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414L8.414 15l-4.121-4.121a1 1 0 011.414-1.414L8.414 12.172l6.879-6.879a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                  : index + 1
+                }
+              </div>
 
               {/* Label */}
               <span style={{
                 flexGrow: 1, fontSize: '14px', fontWeight: '600',
                 color: isSelected ? '#065f46' : isHovered ? '#0f172a' : '#334155',
-                transition: 'color 0.12s',
-              }}>{item}</span>
+                transition: 'color 0.12s ease',
+                letterSpacing: '-0.01em',
+              }}>
+                {item}
+              </span>
 
-              {/* Arrow */}
+              {/* Chevron */}
               <svg
-                width="16" height="16" viewBox="0 0 24 24"
+                width="15" height="15" viewBox="0 0 24 24"
                 fill="none" stroke="currentColor" strokeWidth="2.5"
                 strokeLinecap="round" strokeLinejoin="round"
                 style={{
                   flexShrink: 0,
-                  color: isHovered || isSelected ? '#14b8a6' : '#e2e8f0',
+                  color: isActive ? '#059669' : '#d1d5db',
                   transform: isHovered ? 'translateX(2px)' : 'translateX(0)',
-                  transition: 'all 0.15s',
+                  transition: 'all 0.15s ease',
                 }}
               >
                 <path d="M9 18l6-6-6-6" />
@@ -147,19 +165,23 @@ const FoodSelector: React.FC<FoodSelectorProps> = ({ items, onSelect, isLoading 
         })}
       </div>
 
-      {/* Footer */}
+      {/* ── Footer ────────────────────────────────────────── */}
       <div style={{
-        padding: '10px 20px', background: '#f8fafc',
+        padding: '10px 20px',
+        background: '#f8fafb',
         borderTop: '1px solid #f1f5f9',
-        display: 'flex', alignItems: 'center', gap: '6px',
+        display: 'flex', alignItems: 'center', gap: '7px',
       }}>
-        <span style={{ fontSize: '14px' }}>⌨️</span>
+        <svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="#94a3b8" strokeWidth="1.75">
+          <rect x="3" y="3" width="14" height="14" rx="2" />
+          <path d="M7 10h6M10 7v6" strokeLinecap="round" />
+        </svg>
         <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8', fontWeight: '500' }}>
           Click any item to load its nutrition data
         </p>
       </div>
 
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      <style>{`@keyframes fs-spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 };

@@ -5,13 +5,11 @@ import {
   type NutritionData,
   type MultipleNutritionResponse
 } from './utils/api';
-import { motion, AnimatePresence } from 'framer-motion';
 import SearchBar from './components/SearchBar';
 import NutritionLabel from './components/NutritionLabel';
 import NutritionCalculator from './components/NutritionCalculator';
 import FoodSelector from './components/FoodSelector';
 import PremiumAlert, { type AlertOptions } from './components/PremiumAlert';
-import { SkeletonSearch, SkeletonLabel } from './components/SkeletonLoader';
 import './App.css';
 
 function App() {
@@ -46,7 +44,7 @@ function App() {
     setError(null);
     setNutritionData(null);
     setSearchChoices([]);
-    
+
     try {
       const choices = await fuzzySearch(query);
       if (choices.length === 0) {
@@ -76,432 +74,486 @@ function App() {
   }, [searchHistory]);
 
   return (
-    <div className="app-container">
-      {/* Header Area */}
-      <div className="header-section">
-        <h1 className="main-title">Nutritive</h1>
-        <p className="subtitle">
-          Create nutritional labels with scientific precision and effortless clarity.
-        </p>
-      </div>
+    <div className="app-root">
+      {/* Background texture */}
+      <div className="bg-grid" aria-hidden="true" />
+      <div className="bg-orb bg-orb-1" aria-hidden="true" />
+      <div className="bg-orb bg-orb-2" aria-hidden="true" />
 
-      <div className="main-content">
-        {/* Navigation Switcher */}
-        <div className="nav-switcher">
-          {(['search', 'calculator'] as const).map(tab => {
-            const active = activeTab === tab;
-            return (
-              <button
-                key={tab}
-                className={`nav-button ${active ? 'active' : ''}`}
-                onClick={() => { setActiveTab(tab); setError(null); setNutritionData(null); setSearchChoices([]); }}
-              >
-                {tab === 'search' ? '🔍 Food Search' : '🧾 Recipe Builder'}
-              </button>
-            );
-          })}
+      {/* Header */}
+      <header className="site-header">
+        <div className="header-inner">
+          <div className="wordmark">
+            <span className="wordmark-icon">◈</span>
+            <span className="wordmark-text">Nutritive</span>
+          </div>
+          <p className="site-tagline">Precision nutrition intelligence</p>
+        </div>
+      </header>
+
+      {/* Main */}
+      <main className="site-main">
+        {/* Tab switcher */}
+        <div className="tab-rail">
+          <button
+            className={`tab-btn ${activeTab === 'search' ? 'tab-active' : ''}`}
+            onClick={() => { setActiveTab('search'); setError(null); setNutritionData(null); setSearchChoices([]); }}
+          >
+            <span className="tab-icon">⌕</span>
+            Food Search
+          </button>
+          <button
+            className={`tab-btn ${activeTab === 'calculator' ? 'tab-active' : ''}`}
+            onClick={() => { setActiveTab('calculator'); setError(null); setNutritionData(null); setSearchChoices([]); }}
+          >
+            <span className="tab-icon">⊞</span>
+            Recipe Builder
+          </button>
         </div>
 
+        {/* Tab content */}
         {activeTab === 'search' ? (
-          <div className="search-tab-content">
+          <div className="search-panel">
+            {/* Search card */}
             <div className="search-card">
-              <SearchBar 
-                onSearch={handleSearch} 
-                isLoading={isLoading} 
+              <SearchBar
+                onSearch={handleSearch}
+                isLoading={isLoading}
                 hideSuggestions={searchChoices.length > 0}
               />
-              {/* Recent searches */}
               {searchHistory.length > 0 && (
-                <div className="history-section">
-                  <span className="history-label">Recent:</span>
-                  <div className="history-tags">
+                <div className="history-row">
+                  <span className="history-eyebrow">Recent</span>
+                  <div className="history-chips">
                     {searchHistory.map((item, i) => (
-                      <button
-                        key={i}
-                        className="history-tag"
-                        onClick={() => handleSearch(item)}
-                      >{item}</button>
+                      <button key={i} className="history-chip" onClick={() => handleSearch(item)}>
+                        {item}
+                      </button>
                     ))}
                   </div>
                 </div>
               )}
             </div>
 
+            {/* Loading */}
             {isLoading && (
-              <div className="loading-container">
-                <div className="spinner" />
-                <p>Analyzing nutrients…</p>
+              <div className="loading-state">
+                <div className="loader-ring">
+                  <div className="loader-segment" />
+                </div>
+                <span className="loading-text">Analyzing nutrients…</span>
               </div>
             )}
-            
+
+            {/* Disambiguation */}
             {searchChoices.length > 0 && !isLoading && (
-              <div className="disambiguation-section">
+              <div className="disambiguation-wrap">
                 <FoodSelector items={searchChoices} onSelect={fetchNutrition} isLoading={isLoading} />
               </div>
             )}
 
+            {/* Result */}
             {nutritionData && !isLoading && (
-              <div className="label-result-wrapper">
+              <div className="result-wrap">
                 <NutritionLabel data={nutritionData} showAlert={showAlert} />
               </div>
             )}
           </div>
         ) : (
-          <div className="calculator-tab-content">
+          <div className="calculator-panel">
             <NutritionCalculator showAlert={showAlert} />
           </div>
         )}
-      </div>
 
-      {error && !isLoading && (
-        <div className="error-toast">
-          ⚠️ {error}
-        </div>
-      )}
+        {/* Error */}
+        {error && !isLoading && (
+          <div className="error-banner" role="alert">
+            <span className="error-icon">!</span>
+            {error}
+          </div>
+        )}
+      </main>
 
       {/* Footer */}
-      <footer className="app-footer">
-        <p>© {new Date().getFullYear()} Nutritive —  Nutritional Analytics</p>
+      <footer className="site-footer">
+        <p>© {new Date().getFullYear()} Nutritive — Nutritional Analytics</p>
       </footer>
 
       <PremiumAlert alert={alert} onClose={() => setAlert(null)} />
 
       <style>{`
-        .app-container {
+        /* ─── Reset / Base ───────────────────────────────────────────── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+          background: #f8faf9;
+          color: #1a2e27;
+          font-family: 'DM Sans', 'Outfit', ui-sans-serif, system-ui, sans-serif;
+          -webkit-font-smoothing: antialiased;
+        }
+
+        /* ─── Background ─────────────────────────────────────────────── */
+        .app-root {
           min-height: 100vh;
-          background: 
-            radial-gradient(at 0% 0%, #f0fdf9 0px, transparent 50%), 
-            radial-gradient(at 100% 0%, #f0f9ff 0px, transparent 50%),
-            radial-gradient(at 100% 100%, #f8fafc 0px, transparent 50%),
-            #ffffff;
+          position: relative;
+          overflow-x: hidden;
           display: flex;
           flex-direction: column;
           align-items: center;
-          padding: 80px 24px;
-          font-family: 'Inter', system-ui, sans-serif;
-          color: #1e293b;
-          box-sizing: border-box;
-          line-height: 1.5;
         }
 
-        .header-section {
+        .bg-grid {
+          position: fixed;
+          inset: 0;
+          background-image:
+            linear-gradient(rgba(16,185,129,0.06) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(16,185,129,0.06) 1px, transparent 1px);
+          background-size: 48px 48px;
+          pointer-events: none;
+          z-index: 0;
+        }
+
+        .bg-orb {
+          position: fixed;
+          border-radius: 50%;
+          filter: blur(120px);
+          pointer-events: none;
+          z-index: 0;
+        }
+
+        .bg-orb-1 {
+          width: 600px;
+          height: 600px;
+          background: radial-gradient(circle, rgba(16,185,129,0.15) 0%, transparent 70%);
+          top: -200px;
+          left: -200px;
+        }
+
+        .bg-orb-2 {
+          width: 500px;
+          height: 500px;
+          background: radial-gradient(circle, rgba(6,182,212,0.12) 0%, transparent 70%);
+          bottom: -100px;
+          right: -150px;
+        }
+
+        /* ─── Header ─────────────────────────────────────────────────── */
+        .site-header {
+          position: relative;
+          z-index: 10;
+          width: 100%;
+          padding: 48px 24px 0;
           text-align: center;
-          margin-bottom: 72px;
-          animation: slideDown 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-          width: 100%;
+          animation: fadeSlideDown 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
         }
 
-        .main-title {
-          font-size: 56px;
-          font-weight: 800;
-          margin: 0 0 20px;
-          background: linear-gradient(135deg, #059669 0%, #0d9488 50%, #0284c7 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          letter-spacing: -0.04em;
-          line-height: 1.1;
-        }
-
-        .subtitle {
-          font-size: 19px;
-          color: #64748b;
-          font-weight: 500;
-          max-width: 540px;
-          margin: 0 auto;
-          line-height: 1.6;
-          letter-spacing: -0.01em;
-        }
-
-        .main-content {
-          width: 100%;
-          maxWidth: 1000px;
-          display: flex;
+        .header-inner {
+          display: inline-flex;
           flex-direction: column;
-          gap: 40px;
-        }
-
-        .nav-switcher {
-          display: flex;
-          background: rgba(241, 245, 249, 0.7); 
-          backdrop-filter: blur(12px);
-          border: 1px solid rgba(226, 232, 240, 0.8);
-          border-radius: 20px;
-          padding: 5px;
-          margin: 0 auto 16px;
-          box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
-        }
-
-        .nav-button {
-          padding: 10px 28px;
-          border-radius: 15px;
-          border: 1px solid transparent;
-          background: transparent;
-          color: #64748b;
-          font-weight: 600;
-          font-size: 14px;
-          cursor: pointer;
-          transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-          white-space: nowrap;
-          letter-spacing: 0.01em;
-        }
-
-        .nav-button:hover {
-          color: #0f172a;
-        }
-
-        .nav-button.active {
-          background: #ffffff;
-          border-color: rgba(226, 232, 240, 0.5);
-          box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
-          color: #0f172a;
-          font-weight: 700;
-        }
-
-        .search-tab-content {
-          display: flex;
-          flex-direction: column;
-          gap: 40px;
-          align-items: center;
-          width: 100%;
-        }
-
-        .search-card {
-          width: 100%;
-          max-width: 640px;
-          background: rgba(255, 255, 255, 0.8);
-          backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.9);
-          border-radius: 28px;
-          padding: 28px;
-          box-shadow: 
-            0 1px 3px rgba(0,0,0,0.02),
-            0 10px 40px -10px rgba(0,0,0,0.05);
-          box-sizing: border-box;
-          transition: transform 0.3s ease;
-        }
-
-        .search-card:focus-within {
-          transform: translateY(-2px);
-          box-shadow: 
-            0 1px 3px rgba(0,0,0,0.02),
-            0 20px 50px -12px rgba(0,0,0,0.08);
-        }
-
-        .history-section {
-          margin-top: 20px;
-          padding-top: 16px;
-          border-top: 1px solid #f1f5f9;
-          display: flex;
           align-items: center;
           gap: 12px;
         }
 
-        .history-label {
-          font-size: 11px;
-          font-weight: 800;
-          color: #94a3b8;
-          text-transform: uppercase;
-        }
-
-        .history-tags {
+        .wordmark {
           display: flex;
-          gap: 8px;
-          flex-wrap: wrap;
+          align-items: center;
+          gap: 10px;
         }
 
-        .history-tag {
-          padding: 6px 14px;
-          border-radius: 12px;
-          border: 1px solid #e2e8f0;
-          font-size: 11px;
-          font-weight: 700;
-          color: #64748b;
-          background: #ffffff;
-          cursor: pointer;
-          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-          text-transform: capitalize;
-          letter-spacing: 0.01em;
+        .wordmark-icon {
+          font-size: 32px;
+          background: linear-gradient(135deg, #10b981, #06b6d4);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          line-height: 1;
         }
 
-        .history-tag:hover {
-          background: #f8fafc;
-          border-color: #10b981;
-          color: #10b981;
-          transform: translateY(-1px);
-          box-shadow: 0 4px 8px rgba(16, 185, 129, 0.08);
+        .wordmark-text {
+          font-size: 48px;
+          font-weight: 800;
+          letter-spacing: -0.04em;
+          background: linear-gradient(135deg, #065f46 0%, #059669 40%, #0891b2 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          line-height: 1;
         }
 
-        .loading-container {
+        .site-tagline {
+          font-size: 15px;
+          font-weight: 500;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: #94a3b8;
+        }
+
+        /* ─── Main ───────────────────────────────────────────────────── */
+        .site-main {
+          position: relative;
+          z-index: 10;
+          width: 100%;
+          max-width: 760px;
+          padding: 48px 20px 48px;
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 14px;
-          padding: 40px;
+          gap: 28px;
+          flex: 1;
         }
 
-        .spinner {
-          width: 40px;
-          height: 40px;
-          border: 4px solid #f0fdfa;
-          border-top-color: #14b8a6;
-          border-radius: 50%;
-          animation: spin 0.8s linear infinite;
+        /* ─── Tab Rail ───────────────────────────────────────────────── */
+        .tab-rail {
+          display: flex;
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
+          border-radius: 16px;
+          padding: 4px;
+          gap: 2px;
+          box-shadow: 0 1px 4px rgba(0,0,0,0.06);
         }
 
-        .disambiguation-section {
+        .tab-btn {
+          display: flex;
+          align-items: center;
+          gap: 7px;
+          padding: 10px 24px;
+          border-radius: 12px;
+          border: none;
+          background: transparent;
+          color: #94a3b8;
+          font-family: inherit;
+          font-size: 14px;
+          font-weight: 600;
+          letter-spacing: 0.01em;
+          cursor: pointer;
+          transition: color 0.2s, background 0.2s, box-shadow 0.2s;
+          white-space: nowrap;
+        }
+
+        .tab-btn:hover { color: #334155; }
+
+        .tab-active {
+          background: #f0fdf9;
+          border: 1px solid rgba(16,185,129,0.3) !important;
+          color: #059669 !important;
+          box-shadow: 0 1px 6px rgba(16,185,129,0.1);
+        }
+
+        .tab-icon {
+          font-size: 16px;
+          line-height: 1;
+        }
+
+        /* ─── Search Panel ───────────────────────────────────────────── */
+        .search-panel {
           width: 100%;
-          max-width: 600px;
-          animation: fadeIn 0.5s ease-out;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 24px;
+          animation: fadeSlideUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
         }
 
-        .label-result-wrapper {
-          animation: fadeIn 0.5s ease-out;
+        /* ─── Search Card ────────────────────────────────────────────── */
+        .search-card {
+          width: 100%;
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
+          border-radius: 24px;
+          padding: 24px;
+          box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+          transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .search-card:focus-within {
+          border-color: rgba(16,185,129,0.4);
+          box-shadow: 0 0 0 3px rgba(16,185,129,0.08), 0 2px 12px rgba(0,0,0,0.04);
+        }
+
+        /* ─── History ────────────────────────────────────────────────── */
+        .history-row {
+          margin-top: 18px;
+          padding-top: 16px;
+          border-top: 1px solid #f1f5f9;
+          display: flex;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 10px;
+        }
+
+        .history-eyebrow {
+          font-size: 10px;
+          font-weight: 800;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          color: #94a3b8;
+          flex-shrink: 0;
+        }
+
+        .history-chips {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+        }
+
+        .history-chip {
+          padding: 5px 13px;
+          border-radius: 100px;
+          border: 1px solid #e2e8f0;
+          background: #f8fafc;
+          color: #64748b;
+          font-family: inherit;
+          font-size: 12px;
+          font-weight: 600;
+          text-transform: capitalize;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .history-chip:hover {
+          border-color: rgba(16,185,129,0.45);
+          background: #f0fdf9;
+          color: #059669;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 8px rgba(16,185,129,0.1);
+        }
+
+        /* ─── Loading ────────────────────────────────────────────────── */
+        .loading-state {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 16px;
+          padding: 40px 0;
+        }
+
+        .loader-ring {
+          width: 44px;
+          height: 44px;
+          border-radius: 50%;
+          border: 3px solid #d1fae5;
+          border-top-color: #059669;
+          animation: spin 0.75s linear infinite;
+        }
+
+        .loading-text {
+          font-size: 13px;
+          font-weight: 600;
+          color: #94a3b8;
+          letter-spacing: 0.02em;
+        }
+
+        /* ─── Disambiguation ─────────────────────────────────────────── */
+        .disambiguation-wrap {
+          width: 100%;
+          animation: fadeSlideUp 0.35s ease both;
+        }
+
+        /* ─── Result ─────────────────────────────────────────────────── */
+        .result-wrap {
           width: 100%;
           display: flex;
           justify-content: center;
+          animation: fadeSlideUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
         }
 
-        .calculator-tab-content {
-          animation: fadeIn 0.5s ease-out;
+        /* ─── Calculator Panel ───────────────────────────────────────── */
+        .calculator-panel {
           width: 100%;
+          animation: fadeSlideUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
         }
 
-        .error-toast {
-          margin-top: 32px;
-          padding: 16px 24px;
+        /* ─── Error ──────────────────────────────────────────────────── */
+        .error-banner {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 14px 20px;
           background: #fef2f2;
-          border: 1px solid #fee2e2;
-          border-radius: 16px;
-          color: #ef4444;
+          border: 1px solid #fecaca;
+          border-radius: 14px;
+          color: #dc2626;
           font-size: 14px;
           font-weight: 600;
-          animation: fadeIn 0.3s ease-out;
+          animation: fadeSlideUp 0.3s ease both;
+          width: 100%;
+          max-width: 640px;
         }
 
-        .app-footer {
-          margin-top: 80px;
-          text-align: center;
-          color: #94a3b8;
+        .error-icon {
+          width: 22px;
+          height: 22px;
+          border-radius: 50%;
+          background: #fee2e2;
+          color: #ef4444;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           font-size: 13px;
-          padding: 20px;
+          font-weight: 900;
+          flex-shrink: 0;
+          line-height: 22px;
+          text-align: center;
         }
 
-        /* Mobile Breakpoints */
-        @media (max-width: 768px) {
-          .app-container {
-            padding: 40px 16px;
-          }
-          .main-title {
-            font-size: 36px;
-          }
-          .subtitle {
-            font-size: 16px;
-          }
-          .search-card, .calculator-container {
-            padding: 24px 16px !important;
-          }
-          .nav-button {
-            padding: 8px 16px;
-            font-size: 13px;
-          }
+        /* ─── Footer ─────────────────────────────────────────────────── */
+        .site-footer {
+          position: relative;
+          z-index: 10;
+          padding: 24px;
+          text-align: center;
+          color: #cbd5e1;
+          font-size: 12px;
+          letter-spacing: 0.03em;
         }
 
+        /* ─── Animations ─────────────────────────────────────────────── */
+        @keyframes fadeSlideDown {
+          from { opacity: 0; transform: translateY(-18px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeSlideUp {
+          from { opacity: 0; transform: translateY(14px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to   { transform: rotate(360deg); }
+        }
+
+        /* ─── Responsive ─────────────────────────────────────────────── */
+        @media (max-width: 640px) {
+          .wordmark-text { font-size: 36px; }
+          .site-tagline { font-size: 13px; }
+          .tab-btn { padding: 9px 14px; font-size: 13px; }
+          .search-card { padding: 18px 16px; border-radius: 20px; }
+          .site-main { padding: 32px 16px 40px; gap: 20px; }
+          .site-header { padding-top: 36px; }
+        }
+
+        @media (max-width: 400px) {
+          .wordmark-text { font-size: 30px; }
+          .tab-rail { width: 100%; }
+          .tab-btn { flex: 1; justify-content: center; padding: 9px 8px; font-size: 12px; }
+          .history-row { flex-direction: column; align-items: flex-start; }
+        }
+
+        /* ─── Child component overrides ──────────────────────────────── */
+        /* Ingredient rows in the Recipe Builder */
         @media (max-width: 600px) {
           .ingredient-row {
             flex-direction: column !important;
             align-items: stretch !important;
             gap: 8px !important;
             padding: 12px;
-            background: rgba(255,255,255,0.4);
+            background: #f8fafc;
             border-radius: 16px;
-            border: 1px solid rgba(255,255,255,0.6);
+            border: 1px solid #e2e8f0;
           }
-          .name-input-wrapper {
-            width: 100%;
-          }
-          .quantity-wrapper {
-            justify-content: flex-end;
-          }
-          .calculator-actions {
-            flex-direction: column;
-            gap: 16px;
-          }
-          .calculate-btn {
-            width: 100% !important;
-          }
+          .name-input-wrapper { width: 100%; }
+          .quantity-wrapper { justify-content: flex-end; }
+          .calculator-actions { flex-direction: column; gap: 16px; }
+          .calculate-btn { width: 100% !important; }
         }
-
-        @media (max-width: 480px) {
-          .app-container {
-            padding: 32px 12px;
-          }
-          .main-title {
-            font-size: 32px;
-          }
-          .header-section {
-            margin-bottom: 40px;
-          }
-          .nav-switcher {
-            width: 100%;
-          }
-          .nav-button {
-            flex: 1;
-            padding: 10px 8px;
-            font-size: 12px;
-          }
-          .history-section {
-            flex-direction: column;
-            align-items: flex-start;
-          }
-          .nutrition-facts-card {
-            padding: 16px !important;
-          }
-          .label-title {
-            font-size: 20px !important;
-          }
-          .calories-block p:last-child {
-            font-size: 28px !important;
-          }
-          .label-copy-btn {
-             top: 10px !important;
-             right: 10px !important;
-             padding: 4px 8px !important;
-             font-size: 10px !important;
-          }
-          .nutrition-facts-card {
-            padding: 16px !important;
-          }
-          .label-title {
-            font-size: 20px !important;
-          }
-          .calories-block p:last-child {
-            font-size: 28px !important;
-          }
-          .label-copy-btn {
-             top: 10px !important;
-             right: 10px !important;
-             padding: 4px 8px !important;
-             font-size: 10px !important;
-          }
-        }
-
-        @keyframes slideDown { 
-          from { opacity: 0; transform: translateY(-20px); } 
-          to { opacity: 1; transform: translateY(0); } 
-        }
-        @keyframes slideUp { 
-          from { opacity: 0; transform: translateY(20px); } 
-          to { opacity: 1; transform: translateY(0); } 
-        }
-        @keyframes fadeIn { 
-          from { opacity: 0; } 
-          to { opacity: 1; } 
-        }
-        @keyframes spin { 
-          from { transform: rotate(0deg); } 
-          to { transform: rotate(360deg); } 
-        }
-        body { margin: 0; background: #fff; }
       `}</style>
     </div>
   );

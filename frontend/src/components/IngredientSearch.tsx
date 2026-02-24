@@ -68,36 +68,53 @@ export default function IngredientSearch({ onAddIngredient }: IngredientSearchPr
   const canAdd = !!selectedFood && !!amount && parseFloat(amount) > 0;
 
   return (
-    <div style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
+    <div style={{ fontFamily: "'DM Sans', 'Outfit', ui-sans-serif, system-ui, sans-serif" }}>
 
-      {/* Label row */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+      {/* ── Label row ─────────────────────────────────────── */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '9px', marginBottom: '12px' }}>
         <div style={{
-          width: '28px', height: '28px', borderRadius: '8px', flexShrink: 0,
-          background: 'linear-gradient(135deg, #34d399, #14b8a6)',
+          width: '26px', height: '26px', borderRadius: '8px', flexShrink: 0,
+          background: 'linear-gradient(135deg, #10b981, #059669)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: '14px', boxShadow: '0 2px 8px rgba(20,184,166,0.3)',
-        }}>+</div>
-        <p style={{ margin: 0, fontSize: '13px', fontWeight: '700', color: '#334155' }}>Add an ingredient</p>
+          boxShadow: '0 2px 8px rgba(5,150,105,0.25)',
+        }}>
+          <svg width="12" height="12" viewBox="0 0 20 20" fill="white">
+            <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
+          </svg>
+        </div>
+        <p style={{ margin: 0, fontSize: '13px', fontWeight: '700', color: '#334155' }}>
+          Add an ingredient
+        </p>
         {selectedFood && (
           <span style={{
-            marginLeft: 'auto', fontSize: '11px', fontWeight: '700',
-            background: '#ecfdf5', color: '#065f46', border: '1px solid #a7f3d0',
-            borderRadius: '20px', padding: '2px 10px',
-          }}>✓ Selected</span>
+            marginLeft: 'auto',
+            fontSize: '10px', fontWeight: '800',
+            background: '#f0fdf9', color: '#059669',
+            border: '1px solid #a7f3d0',
+            borderRadius: '100px', padding: '3px 10px',
+            letterSpacing: '0.04em', textTransform: 'uppercase',
+            display: 'flex', alignItems: 'center', gap: '4px',
+          }}>
+            <svg width="10" height="10" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414L8.414 15l-4.121-4.121a1 1 0 011.414-1.414L8.414 12.172l6.879-6.879a1 1 0 011.414 0z" clipRule="evenodd" />
+            </svg>
+            Selected
+          </span>
         )}
       </div>
 
-      {/* Input row */}
-      <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+      {/* ── Input row ──────────────────────────────────────── */}
+      <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
 
         {/* Search field + dropdown */}
         <div style={{ position: 'relative', flexGrow: 1, minWidth: '200px' }} ref={dropdownRef}>
+
           {/* Search icon */}
           <div style={{
             position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)',
-            pointerEvents: 'none', color: inputFocused ? '#14b8a6' : '#94a3b8',
-            transition: 'color 0.2s', zIndex: 1,
+            pointerEvents: 'none',
+            color: inputFocused ? '#059669' : '#94a3b8',
+            transition: 'color 0.2s ease', zIndex: 1,
           }}>
             <svg width="15" height="15" viewBox="0 0 20 20" fill="none">
               <circle cx="9" cy="9" r="6" stroke="currentColor" strokeWidth="2" />
@@ -105,6 +122,7 @@ export default function IngredientSearch({ onAddIngredient }: IngredientSearchPr
             </svg>
           </div>
 
+          {/* Text input */}
           <input
             type="text"
             value={query}
@@ -113,13 +131,19 @@ export default function IngredientSearch({ onAddIngredient }: IngredientSearchPr
             onBlur={() => setInputFocused(false)}
             placeholder="Search for a food item…"
             style={{
-              width: '100%', padding: '12px 40px 12px 38px',
-              fontSize: '14px', fontWeight: '500', color: '#0f172a',
-              background: selectedFood ? '#f0fdf4' : inputFocused ? '#fff' : '#f8fafc',
-              border: `2px solid ${selectedFood ? '#6ee7b7' : inputFocused ? '#34d399' : '#e2e8f0'}`,
-              borderRadius: '14px', outline: 'none', boxSizing: 'border-box',
-              boxShadow: inputFocused ? '0 0 0 3px rgba(52,211,153,0.12)' : 'none',
-              transition: 'all 0.2s',
+              width: '100%',
+              padding: '12px 38px 12px 38px',
+              fontSize: '14px', fontWeight: '500',
+              color: '#0f172a',
+              background: selectedFood ? '#f0fdf9' : inputFocused ? '#ffffff' : '#f8fafb',
+              border: `1.5px solid ${selectedFood ? '#a7f3d0' : inputFocused ? '#059669' : '#e2e8f0'}`,
+              borderRadius: '14px', outline: 'none',
+              boxSizing: 'border-box',
+              boxShadow: inputFocused
+                ? '0 0 0 3px rgba(5,150,105,0.1), 0 1px 4px rgba(0,0,0,0.04)'
+                : '0 1px 3px rgba(0,0,0,0.03)',
+              transition: 'all 0.2s cubic-bezier(0.4,0,0.2,1)',
+              fontFamily: 'inherit',
             }}
           />
 
@@ -128,10 +152,10 @@ export default function IngredientSearch({ onAddIngredient }: IngredientSearchPr
             {isLoading ? (
               <div style={{
                 width: '16px', height: '16px', borderRadius: '50%',
-                border: '2px solid #d1fae5', borderTopColor: '#14b8a6',
-                animation: 'spin 0.7s linear infinite',
+                border: '2px solid #d1fae5', borderTopColor: '#059669',
+                animation: 'is-spin 0.7s linear infinite',
               }} />
-            ) : query && (
+            ) : query ? (
               <button
                 type="button"
                 onClick={() => { setQuery(''); setSuggestions([]); setSelectedFood(null); }}
@@ -139,21 +163,32 @@ export default function IngredientSearch({ onAddIngredient }: IngredientSearchPr
                   width: '20px', height: '20px', borderRadius: '50%', border: 'none',
                   background: '#f1f5f9', color: '#94a3b8', cursor: 'pointer',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '11px', transition: 'all 0.15s',
+                  fontSize: '10px', fontWeight: '700',
+                  transition: 'all 0.15s ease',
                 }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#e2e8f0'; (e.currentTarget as HTMLElement).style.color = '#475569'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = '#f1f5f9'; (e.currentTarget as HTMLElement).style.color = '#94a3b8'; }}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLElement).style.background = '#e2e8f0';
+                  (e.currentTarget as HTMLElement).style.color = '#475569';
+                }}
+                onMouseLeave={e => {
+                  (e.currentTarget as HTMLElement).style.background = '#f1f5f9';
+                  (e.currentTarget as HTMLElement).style.color = '#94a3b8';
+                }}
               >✕</button>
-            )}
+            ) : null}
           </div>
 
           {/* Dropdown */}
           {isDropdownOpen && suggestions.length > 0 && (
             <div style={{
-              position: 'absolute', zIndex: 20, top: 'calc(100% + 6px)', left: 0, right: 0,
-              background: '#fff', border: '1.5px solid #e2e8f0',
-              borderRadius: '16px', boxShadow: '0 8px 30px rgba(0,0,0,0.1)',
-              maxHeight: '240px', overflowY: 'auto', padding: '6px 0',
+              position: 'absolute', zIndex: 20,
+              top: 'calc(100% + 6px)', left: 0, right: 0,
+              background: '#ffffff',
+              border: '1.5px solid #e2e8f0',
+              borderRadius: '16px',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)',
+              maxHeight: '240px', overflowY: 'auto',
+              padding: '5px 0',
             }}>
               {suggestions.map((food, idx) => {
                 const isActive = selectedFood?.id === food.id;
@@ -167,31 +202,45 @@ export default function IngredientSearch({ onAddIngredient }: IngredientSearchPr
                     style={{
                       display: 'flex', alignItems: 'center', gap: '10px',
                       padding: '10px 14px', cursor: 'pointer',
-                      background: isActive ? '#ecfdf5' : isHovered ? '#f8fafc' : '#fff',
+                      background: isActive ? '#f0fdf9' : isHovered ? '#f8fafc' : '#ffffff',
                       borderBottom: idx < suggestions.length - 1 ? '1px solid #f8fafc' : 'none',
-                      transition: 'background 0.1s',
+                      transition: 'background 0.1s ease',
                     }}
                   >
+                    {/* Index badge */}
                     <div style={{
-                      flexShrink: 0, width: '24px', height: '24px', borderRadius: '7px',
-                      background: isActive ? 'linear-gradient(135deg, #34d399, #14b8a6)' : isHovered ? '#f0fdf4' : '#f8fafc',
+                      flexShrink: 0, width: '22px', height: '22px', borderRadius: '7px',
+                      background: isActive ? 'linear-gradient(135deg, #10b981, #059669)' : isHovered ? '#f0fdf9' : '#f1f5f9',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: '11px', fontWeight: '800',
-                      color: isActive ? '#fff' : '#94a3b8',
-                      transition: 'all 0.15s',
-                    }}>{idx + 1}</div>
+                      fontSize: '10px', fontWeight: '800',
+                      color: isActive ? '#ffffff' : '#94a3b8',
+                      transition: 'all 0.15s ease',
+                    }}>
+                      {isActive
+                        ? <svg width="10" height="10" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414L8.414 15l-4.121-4.121a1 1 0 011.414-1.414L8.414 12.172l6.879-6.879a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                        : idx + 1
+                      }
+                    </div>
+
+                    {/* Name + group */}
                     <div style={{ flexGrow: 1, minWidth: 0 }}>
-                      <p style={{ margin: 0, fontSize: '13px', fontWeight: '600', color: isActive ? '#065f46' : '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      <p style={{
+                        margin: 0, fontSize: '13px', fontWeight: '600',
+                        color: isActive ? '#065f46' : '#1e293b',
+                        whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                      }}>
                         {food.name}
                       </p>
                       {food.group && (
-                        <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8', fontWeight: '500' }}>{food.group}</p>
+                        <p style={{ margin: 0, fontSize: '11px', color: '#94a3b8', fontWeight: '500' }}>
+                          {food.group}
+                        </p>
                       )}
                     </div>
+
+                    {/* Active arrow */}
                     {isActive && (
-                      <svg width="14" height="14" viewBox="0 0 20 20" fill="#14b8a6">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414L8.414 15l-4.121-4.121a1 1 0 011.414-1.414L8.414 12.172l6.879-6.879a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
+                      <span style={{ color: '#10b981', flexShrink: 0, fontSize: '14px' }}>→</span>
                     )}
                   </div>
                 );
@@ -200,7 +249,7 @@ export default function IngredientSearch({ onAddIngredient }: IngredientSearchPr
           )}
         </div>
 
-        {/* Amount field */}
+        {/* ── Amount field ─────────────────────────────────── */}
         <div style={{ position: 'relative', flexShrink: 0 }}>
           <input
             type="number"
@@ -212,53 +261,73 @@ export default function IngredientSearch({ onAddIngredient }: IngredientSearchPr
             step="1"
             placeholder="100"
             style={{
-              width: '80px', padding: '12px 28px 12px 12px',
-              fontSize: '14px', fontWeight: '700', color: '#0f172a',
-              background: amountFocused ? '#fff' : '#f8fafc',
-              border: `2px solid ${amountFocused ? '#34d399' : '#e2e8f0'}`,
-              borderRadius: '14px', outline: 'none', textAlign: 'center',
-              boxSizing: 'border-box',
-              boxShadow: amountFocused ? '0 0 0 3px rgba(52,211,153,0.12)' : 'none',
-              transition: 'all 0.2s',
+              width: '82px',
+              padding: '12px 24px 12px 12px',
+              fontSize: '14px', fontWeight: '700',
+              color: '#0f172a',
+              background: amountFocused ? '#ffffff' : '#f8fafb',
+              border: `1.5px solid ${amountFocused ? '#059669' : '#e2e8f0'}`,
+              borderRadius: '14px', outline: 'none',
+              textAlign: 'center', boxSizing: 'border-box',
+              boxShadow: amountFocused
+                ? '0 0 0 3px rgba(5,150,105,0.1)'
+                : '0 1px 3px rgba(0,0,0,0.03)',
+              transition: 'all 0.2s ease',
+              fontFamily: 'inherit',
             }}
           />
           <span style={{
-            position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)',
-            fontSize: '11px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', pointerEvents: 'none',
+            position: 'absolute', right: '9px', top: '50%', transform: 'translateY(-50%)',
+            fontSize: '10px', fontWeight: '800', color: '#94a3b8',
+            textTransform: 'uppercase', pointerEvents: 'none', letterSpacing: '0.04em',
           }}>g</span>
         </div>
 
-        {/* Add button */}
+        {/* ── Add button ───────────────────────────────────── */}
         <button
           onClick={handleAddIngredient}
           disabled={!canAdd}
           style={{
-            padding: '12px 20px', border: 'none', borderRadius: '14px',
-            fontSize: '14px', fontWeight: '700', cursor: canAdd ? 'pointer' : 'not-allowed',
+            padding: '12px 20px',
+            border: 'none', borderRadius: '14px',
+            fontSize: '14px', fontWeight: '700',
+            cursor: canAdd ? 'pointer' : 'not-allowed',
             background: justAdded
-              ? '#ecfdf5'
+              ? '#f0fdf9'
               : canAdd
-                ? 'linear-gradient(135deg, #34d399, #14b8a6)'
-                : '#e2e8f0',
-            color: justAdded ? '#065f46' : canAdd ? '#fff' : '#94a3b8',
-            boxShadow: canAdd && !justAdded ? '0 3px 12px rgba(20,184,166,0.35)' : 'none',
+                ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+                : '#f1f5f9',
+            color: justAdded ? '#059669' : canAdd ? '#ffffff' : '#94a3b8',
+            border: justAdded ? '1.5px solid #a7f3d0' : '1.5px solid transparent',
+            boxShadow: canAdd && !justAdded ? '0 2px 10px rgba(5,150,105,0.3)' : 'none',
             display: 'flex', alignItems: 'center', gap: '6px',
-            transition: 'all 0.2s', whiteSpace: 'nowrap',
-            flexShrink: 0,
+            transition: 'all 0.2s cubic-bezier(0.4,0,0.2,1)',
+            whiteSpace: 'nowrap', flexShrink: 0,
+            fontFamily: 'inherit',
           }}
-          onMouseEnter={e => { if (canAdd && !justAdded) (e.currentTarget as HTMLElement).style.boxShadow = '0 5px 18px rgba(20,184,166,0.45)'; }}
-          onMouseLeave={e => { if (canAdd && !justAdded) (e.currentTarget as HTMLElement).style.boxShadow = '0 3px 12px rgba(20,184,166,0.35)'; }}
+          onMouseEnter={e => {
+            if (canAdd && !justAdded) {
+              (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)';
+              (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 16px rgba(5,150,105,0.38)';
+            }
+          }}
+          onMouseLeave={e => {
+            if (canAdd && !justAdded) {
+              (e.currentTarget as HTMLElement).style.transform = 'translateY(0)';
+              (e.currentTarget as HTMLElement).style.boxShadow = '0 2px 10px rgba(5,150,105,0.3)';
+            }
+          }}
         >
           {justAdded ? (
             <>
-              <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor">
+              <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414L8.414 15l-4.121-4.121a1 1 0 011.414-1.414L8.414 12.172l6.879-6.879a1 1 0 011.414 0z" clipRule="evenodd" />
               </svg>
               Added!
             </>
           ) : (
             <>
-              <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor">
+              <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
               </svg>
               Add
@@ -267,7 +336,12 @@ export default function IngredientSearch({ onAddIngredient }: IngredientSearchPr
         </button>
       </div>
 
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      <style>{`
+        @keyframes is-spin {
+          from { transform: rotate(0deg); }
+          to   { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 }
