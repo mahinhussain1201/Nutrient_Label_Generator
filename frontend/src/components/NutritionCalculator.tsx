@@ -179,7 +179,7 @@ const NutritionCalculator: React.FC<NutritionCalculatorProps> = ({ showAlert }) 
     width: '100%',
   };
 
-  const focusStyle = { borderColor: '#34d399', background: '#fff', boxShadow: '0 0 0 4px rgba(52,211,153,0.12), 0 4px 12px rgba(0,0,0,0.04)' };
+  const focusStyle = { borderColor: '#10b981', background: '#fff', boxShadow: '0 0 0 4px rgba(16,185,129,0.08), 0 4px 12px rgba(0,0,0,0.04)' };
   const blurStyle = { borderColor: '#e2e8f0', background: '#f8fafc', boxShadow: 'none' };
 
   return (
@@ -198,24 +198,33 @@ const NutritionCalculator: React.FC<NutritionCalculatorProps> = ({ showAlert }) 
 
       {/* Header with Clear All */}
       <div className="calculator-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div style={{ width: '4px', height: '14px', background: '#14b8a6', borderRadius: '4px' }} />
-          <p className="calculator-title" style={{ margin: 0, fontSize: '11px', fontWeight: '800', color: '#94a3b8', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ width: '4px', height: '16px', background: '#10b981', borderRadius: '4px' }} />
+          <h2 className="calculator-title" style={{ margin: 0, fontSize: '12px', fontWeight: '800', color: '#64748b', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
             Recipe Builder
-          </p>
+          </h2>
         </div>
         {ingredients.length > 1 || ingredients[0].name ? (
           <button
             onClick={clearAll}
             style={{
-              padding: '8px 16px', borderRadius: '12px', border: '1px solid #fee2e2',
-              background: '#fff', color: '#ef4444', fontSize: '12px', fontWeight: '700',
-              cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '6px'
+              padding: '10px 18px', borderRadius: '14px', border: '1px solid #fee2e2',
+              background: '#fff', color: '#ef4444', fontSize: '13px', fontWeight: '700',
+              cursor: 'pointer', transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)', display: 'flex', alignItems: 'center', gap: '8px',
+              boxShadow: '0 2px 6px rgba(239, 68, 68, 0.05)'
             }}
-            onMouseEnter={e => (e.currentTarget.style.background = '#fef2f2')}
-            onMouseLeave={e => (e.currentTarget.style.background = '#fff')}
+            onMouseEnter={e => {
+              e.currentTarget.style.background = '#fff1f2';
+              e.currentTarget.style.borderColor = '#fecaca';
+              e.currentTarget.style.transform = 'translateY(-1px)';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = '#fff';
+              e.currentTarget.style.borderColor = '#fee2e2';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
           >
-            🗑️ Clear
+            🗑️ Clear Recipe
           </button>
         ) : null}
       </div>
@@ -224,14 +233,15 @@ const NutritionCalculator: React.FC<NutritionCalculatorProps> = ({ showAlert }) 
       <div className="ingredient-list" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
         {ingredients.map((ingredient, index) => (
           <React.Fragment key={index}>
-            <div className="ingredient-row" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div className="ingredient-row" style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
 
               {/* Index badge */}
               <div className="row-index" style={{
-                flexShrink: 0, width: '32px', height: '32px', borderRadius: '10px',
-                background: '#f0fdfa',
-                color: '#14b8a6', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: '13px', fontWeight: '800', border: '1px solid #ccfbf1',
+                flexShrink: 0, width: '36px', height: '36px', borderRadius: '12px',
+                background: '#ecfdf5',
+                color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '14px', fontWeight: '800', border: '1px solid #d1fae5',
+                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.05)'
               }}>
                 {index + 1}
               </div>
@@ -247,14 +257,14 @@ const NutritionCalculator: React.FC<NutritionCalculatorProps> = ({ showAlert }) 
                   isInvalid={invalidRows[index]}
                   hideSuggestions={!!disambiguationOptions[index]?.length}
                   placeholder="e.g. rice, wheat…"
-                  style={{ ...inputStyle, paddingRight: '44px' }}
+                  style={{ ...inputStyle, paddingRight: '48px', borderRadius: '18px' }}
                   focusStyle={focusStyle}
                   blurStyle={blurStyle}
                 />
               </div>
 
               {/* Quantity */}
-              <div className="quantity-wrapper" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+              <div className="quantity-wrapper" style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
                 <div style={{ position: 'relative' }}>
                   <input
                     type="number"
@@ -262,12 +272,19 @@ const NutritionCalculator: React.FC<NutritionCalculatorProps> = ({ showAlert }) 
                     value={ingredient.quantity}
                     onChange={e => handleQuantityChange(index, e.target.value)}
                     min="1"
-                    style={{ ...inputStyle, width: '84px', textAlign: 'center', padding: '14px 10px', fontWeight: '700' }}
+                    style={{ 
+                      ...inputStyle, 
+                      width: '90px', 
+                      textAlign: 'center', 
+                      padding: '14px 12px', 
+                      fontWeight: '700',
+                      borderRadius: '18px'
+                    }}
                     onFocus={e => Object.assign(e.target.style, focusStyle)}
                     onBlur={e => Object.assign(e.target.style, blurStyle)}
                   />
                 </div>
-                <span className="unit-label" style={{ fontSize: '12px', fontWeight: '800', color: '#94a3b8', textTransform: 'none', letterSpacing: '0.04em' }}>g</span>
+                <span className="unit-label" style={{ fontSize: '13px', fontWeight: '800', color: '#94a3b8', letterSpacing: '0.02em' }}>g</span>
               </div>
 
               {/* Remove */}
@@ -277,16 +294,21 @@ const NutritionCalculator: React.FC<NutritionCalculatorProps> = ({ showAlert }) 
                   onMouseEnter={() => setHoveredRemove(index)}
                   onMouseLeave={() => setHoveredRemove(null)}
                   style={{
-                    flexShrink: 0, width: '36px', height: '36px', border: 'none', cursor: 'pointer',
+                    flexShrink: 0, width: '40px', height: '40px', border: 'none', cursor: 'pointer',
                     color: hoveredRemove === index ? '#ef4444' : '#cbd5e1',
-                    background: hoveredRemove === index ? '#fef2f2' : 'transparent',
-                    borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '14px', transition: 'all 0.2s',
+                    background: hoveredRemove === index ? '#fff1f2' : 'transparent',
+                    borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '16px', transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
                   }}
                   title="Remove"
-                >✕</button>
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
               ) : (
-                <div style={{ width: '36px' }} />
+                <div style={{ width: '40px' }} />
               )}
             </div>
 
@@ -345,23 +367,38 @@ const NutritionCalculator: React.FC<NutritionCalculatorProps> = ({ showAlert }) 
       </div>
 
       {/* Actions row */}
-      <div className="calculator-actions" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '24px', borderTop: '1px solid #f1f5f9' }}>
+      <div className="calculator-actions" style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'space-between', 
+        paddingTop: '32px', 
+        borderTop: '1px solid #f1f5f9',
+        gap: '20px',
+        flexWrap: 'wrap'
+      }}>
         <button
           className="add-ingredient-btn"
           onClick={addIngredient}
           onMouseEnter={() => setHoveredAdd(true)}
           onMouseLeave={() => setHoveredAdd(false)}
           style={{
-            display: 'flex', alignItems: 'center', gap: '8px',
-            fontSize: '14px', fontWeight: '700', color: '#0d9488',
-            background: hoveredAdd ? '#f0fdfa' : 'transparent',
-            border: 'none', cursor: 'pointer',
-            padding: '10px 16px', borderRadius: '14px', transition: 'all 0.2s',
+            display: 'flex', alignItems: 'center', gap: '12px',
+            fontSize: '15px', fontWeight: '700', color: '#059669',
+            background: hoveredAdd ? '#ecfdf5' : '#f8fafc',
+            border: '1px solid',
+            borderColor: hoveredAdd ? '#d1fae5' : '#e2e8f0',
+            cursor: 'pointer',
+            padding: '12px 24px', borderRadius: '18px', 
+            transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+            boxShadow: hoveredAdd ? '0 4px 12px rgba(16, 185, 129, 0.08)' : 'none',
           }}
         >
           <div className="plus-icon" style={{
-            width: '24px', height: '24px', borderRadius: '8px', background: '#ccfbf1',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', color: '#14b8a6'
+            width: '24px', height: '24px', borderRadius: '8px', 
+            background: hoveredAdd ? '#10b981' : '#cbd5e1',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', 
+            fontSize: '18px', color: '#fff',
+            transition: 'all 0.2s'
           }}>+</div>
           <span>Add Ingredient</span>
         </button>
@@ -371,39 +408,59 @@ const NutritionCalculator: React.FC<NutritionCalculatorProps> = ({ showAlert }) 
           onClick={calculateNutrition}
           disabled={loading}
           style={{
-            padding: '16px 32px', borderRadius: '18px', border: 'none',
+            minHeight: '56px', padding: '0 40px', borderRadius: '20px', border: 'none',
             cursor: loading ? 'not-allowed' : 'pointer',
             fontSize: '16px', fontWeight: '800', letterSpacing: '0.01em', color: '#fff',
             background: loading ? '#cbd5e1' : 'linear-gradient(135deg, #10b981, #059669)',
-            boxShadow: loading ? 'none' : '0 10px 20px rgba(16,185,129,0.2)',
+            boxShadow: loading ? 'none' : '0 10px 25px -5px rgba(16,185,129,0.3)',
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
-            width: ingredients.length > 3 ? '100%' : 'auto'
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px',
+            flexGrow: ingredients.length > 2 ? 1 : 0,
+            width: ingredients.length > 2 ? '100%' : 'auto'
           }}
-          onMouseEnter={e => !loading && (e.currentTarget.style.transform = 'translateY(-2px)')}
-          onMouseLeave={e => !loading && (e.currentTarget.style.transform = 'translateY(0)')}
+          onMouseEnter={e => {
+            if (!loading) {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.boxShadow = '0 15px 30px -5px rgba(16,185,129,0.4)';
+            }
+          }}
+          onMouseLeave={e => {
+            if (!loading) {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 10px 25px -5px rgba(16,185,129,0.3)';
+            }
+          }}
         >
           {loading ? (
-            <div className="loading-spinner-small" style={{ width: '20px', height: '20px', border: '3px solid #fff', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-          ) : null}
-          <span>{loading ? 'Calculating...' : 'Calculate Recipe Totals'}</span>
+            <svg className="spin" width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.3" />
+              <path d="M4 12a8 8 0 018-8" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+            </svg>
+          ) : (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+          )}
+          <span>{loading ? 'Analyzing Recipe...' : 'Analyze Recipe Nutrition'}</span>
         </button>
       </div>
 
       {/* Error */}
       {error && (
         <div style={{
-          display: 'flex', gap: '14px', alignItems: 'flex-start',
-          background: '#fef2f2', border: '1px solid #fecaca',
-          borderRadius: '18px', padding: '18px 20px',
+          display: 'flex', gap: '16px', alignItems: 'flex-start',
+          background: '#fef2f2', border: '1px solid #fee2e2',
+          borderRadius: '20px', padding: '20px 24px',
+          animation: 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
         }}>
           <div style={{
-            flexShrink: 0, width: '32px', height: '32px', borderRadius: '10px',
-            background: '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px',
+            flexShrink: 0, width: '36px', height: '36px', borderRadius: '11px',
+            background: '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px',
           }}>⚠️</div>
           <div>
-            <p style={{ margin: '0 0 3px', fontSize: '14px', fontWeight: '800', color: '#991b1b' }}>Unable to calculate</p>
-            <p style={{ margin: 0, fontSize: '13px', color: '#b91c1c' }}>{error}</p>
+            <p style={{ margin: '0 0 4px', fontSize: '15px', fontWeight: '800', color: '#991b1b' }}>Unable to calculate</p>
+            <p style={{ margin: 0, fontSize: '14px', color: '#b91c1c', lineHeight: 1.5 }}>{error}</p>
           </div>
         </div>
       )}

@@ -81,7 +81,7 @@ function App() {
       <div className="header-section">
         <h1 className="main-title">Nutritive</h1>
         <p className="subtitle">
-          Create professional nutritional labels with scientific precision and effortless clarity.
+          Create nutritional labels with scientific precision and effortless clarity.
         </p>
       </div>
 
@@ -161,7 +161,7 @@ function App() {
 
       {/* Footer */}
       <footer className="app-footer">
-        <p>© {new Date().getFullYear()} Nutritive — Professional Nutritional Analytics</p>
+        <p>© {new Date().getFullYear()} Nutritive —  Nutritional Analytics</p>
       </footer>
 
       <PremiumAlert alert={alert} onClose={() => setAlert(null)} />
@@ -169,42 +169,47 @@ function App() {
       <style>{`
         .app-container {
           min-height: 100vh;
-          background: radial-gradient(at 0% 0%, #f0fdfa 0px, transparent 50%), 
-                      radial-gradient(at 100% 100%, #f0f9ff 0px, transparent 50%), 
-                      #fff;
+          background: 
+            radial-gradient(at 0% 0%, #f0fdf9 0px, transparent 50%), 
+            radial-gradient(at 100% 0%, #f0f9ff 0px, transparent 50%),
+            radial-gradient(at 100% 100%, #f8fafc 0px, transparent 50%),
+            #ffffff;
           display: flex;
           flex-direction: column;
           align-items: center;
-          padding: 60px 20px;
-          font-family: 'Inter', sans-serif;
+          padding: 80px 24px;
+          font-family: 'Inter', system-ui, sans-serif;
           color: #1e293b;
           box-sizing: border-box;
+          line-height: 1.5;
         }
 
         .header-section {
           text-align: center;
-          margin-bottom: 60px;
-          animation: fadeIn 0.8s ease-out;
+          margin-bottom: 72px;
+          animation: slideDown 0.8s cubic-bezier(0.16, 1, 0.3, 1);
           width: 100%;
         }
 
         .main-title {
-          font-size: 48px;
-          font-weight: 900;
-          margin: 0 0 16px;
-          background: linear-gradient(135deg, #10b981, #14b8a6, #0ea5e9);
+          font-size: 56px;
+          font-weight: 800;
+          margin: 0 0 20px;
+          background: linear-gradient(135deg, #059669 0%, #0d9488 50%, #0284c7 100%);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           letter-spacing: -0.04em;
+          line-height: 1.1;
         }
 
         .subtitle {
-          font-size: 18px;
+          font-size: 19px;
           color: #64748b;
           font-weight: 500;
-          max-width: 500px;
+          max-width: 540px;
           margin: 0 auto;
           line-height: 1.6;
+          letter-spacing: -0.01em;
         }
 
         .main-content {
@@ -217,30 +222,39 @@ function App() {
 
         .nav-switcher {
           display: flex;
-          background: rgba(241, 245, 249, 0.5); 
-          backdrop-filter: blur(8px);
-          border-radius: 16px;
-          padding: 6px;
-          margin: 0 auto 10px;
+          background: rgba(241, 245, 249, 0.7); 
+          backdrop-filter: blur(12px);
+          border: 1px solid rgba(226, 232, 240, 0.8);
+          border-radius: 20px;
+          padding: 5px;
+          margin: 0 auto 16px;
+          box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
         }
 
         .nav-button {
-          padding: 10px 24px;
-          border-radius: 12px;
-          border: none;
+          padding: 10px 28px;
+          border-radius: 15px;
+          border: 1px solid transparent;
           background: transparent;
           color: #64748b;
-          font-weight: 700;
+          font-weight: 600;
           font-size: 14px;
           cursor: pointer;
-          transition: all 0.3s;
+          transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
           white-space: nowrap;
+          letter-spacing: 0.01em;
+        }
+
+        .nav-button:hover {
+          color: #0f172a;
         }
 
         .nav-button.active {
-          background: #fff;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+          background: #ffffff;
+          border-color: rgba(226, 232, 240, 0.5);
+          box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
           color: #0f172a;
+          font-weight: 700;
         }
 
         .search-tab-content {
@@ -253,14 +267,24 @@ function App() {
 
         .search-card {
           width: 100%;
-          max-width: 600px;
-          background: rgba(255, 255, 255, 0.7);
-          backdrop-filter: blur(10px);
-          border: 1px solid rgba(255, 255, 255, 0.8);
-          border-radius: 24px;
-          padding: 24px;
-          box-shadow: 0 4px 24px rgba(0,0,0,0.03);
+          max-width: 640px;
+          background: rgba(255, 255, 255, 0.8);
+          backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 255, 255, 0.9);
+          border-radius: 28px;
+          padding: 28px;
+          box-shadow: 
+            0 1px 3px rgba(0,0,0,0.02),
+            0 10px 40px -10px rgba(0,0,0,0.05);
           box-sizing: border-box;
+          transition: transform 0.3s ease;
+        }
+
+        .search-card:focus-within {
+          transform: translateY(-2px);
+          box-shadow: 
+            0 1px 3px rgba(0,0,0,0.02),
+            0 20px 50px -12px rgba(0,0,0,0.08);
         }
 
         .history-section {
@@ -286,20 +310,25 @@ function App() {
         }
 
         .history-tag {
-          padding: 4px 12px;
-          border-radius: 20px;
+          padding: 6px 14px;
+          border-radius: 12px;
           border: 1px solid #e2e8f0;
           font-size: 11px;
-          font-weight: 600;
+          font-weight: 700;
           color: #64748b;
-          background: #fff;
+          background: #ffffff;
           cursor: pointer;
-          transition: all 0.2s;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+          text-transform: capitalize;
+          letter-spacing: 0.01em;
         }
 
         .history-tag:hover {
+          background: #f8fafc;
           border-color: #10b981;
           color: #10b981;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 8px rgba(16, 185, 129, 0.08);
         }
 
         .loading-container {
@@ -456,8 +485,22 @@ function App() {
           }
         }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes slideDown { 
+          from { opacity: 0; transform: translateY(-20px); } 
+          to { opacity: 1; transform: translateY(0); } 
+        }
+        @keyframes slideUp { 
+          from { opacity: 0; transform: translateY(20px); } 
+          to { opacity: 1; transform: translateY(0); } 
+        }
+        @keyframes fadeIn { 
+          from { opacity: 0; } 
+          to { opacity: 1; } 
+        }
+        @keyframes spin { 
+          from { transform: rotate(0deg); } 
+          to { transform: rotate(360deg); } 
+        }
         body { margin: 0; background: #fff; }
       `}</style>
     </div>

@@ -111,32 +111,35 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
           style={{
             position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
             background: 'transparent', border: 'none', cursor: 'pointer',
-            color: '#14b8a6', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            padding: '4px', borderRadius: '6px', transition: 'all 0.2s',
+            color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '4px', borderRadius: '8px', transition: 'all 0.2s',
           }}
           title="Show all matches"
+          onMouseEnter={e => e.currentTarget.style.background = '#f0fdfa'}
+          onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
         >
-          <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="9" cy="9" r="6" />
-            <path d="M14 14l3 3" />
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
         </button>
       )}
 
       {isLoading && (
         <div style={{
-          position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
+          position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)',
           width: '18px', height: '18px', borderRadius: '50%',
-          border: '2.5px solid #d1fae5', borderTopColor: '#14b8a6',
+          border: '2.5px solid #d1fae5', borderTopColor: '#10b981',
           animation: 'spin 0.8s linear infinite',
         }} />
       )}
 
       {showSuggestions && !hideSuggestions && (
         <div style={{
-          position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0,
-          background: '#fff', borderRadius: '14px', border: '1px solid #e2e8f0',
-          boxShadow: '0 8px 20px rgba(0,0,0,0.08)', overflow: 'hidden', zIndex: 100,
+          position: 'absolute', top: 'calc(100% + 8px)', left: 0, right: 0,
+          background: '#fff', borderRadius: '16px', border: '1px solid #e2e8f0',
+          boxShadow: '0 12px 30px -10px rgba(0,0,0,0.15)', overflow: 'hidden', zIndex: 100,
+          animation: 'slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
         }}>
           {suggestions.map((suggestion, index) => (
             <div
@@ -148,20 +151,26 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
               }}
               onMouseEnter={() => setHighlightedIndex(index)}
               style={{
-                padding: '10px 14px',
-                fontSize: '13px',
+                padding: '12px 16px 12px 42px',
+                fontSize: '14px',
                 fontWeight: '500',
-                color: '#334155',
+                color: '#475569',
                 cursor: 'pointer',
-                background: highlightedIndex === index ? '#f0fdfa' : 'transparent',
+                background: highlightedIndex === index ? '#f8fafc' : 'transparent',
                 borderBottom: index === suggestions.length - 1 ? 'none' : '1px solid #f1f5f9',
                 display: 'flex',
                 alignItems: 'center',
                 transition: 'all 0.15s',
               }}
             >
-              <span style={{ color: highlightedIndex === index ? '#14b8a6' : '#94a3b8', marginRight: '8px' }}>•</span>
-              {suggestion}
+              <span style={{ 
+                color: highlightedIndex === index ? '#10b981' : '#cbd5e1', 
+                marginRight: '12px',
+                fontSize: '16px'
+              }}>•</span>
+              <span style={{ color: highlightedIndex === index ? '#0f172a' : 'inherit' }}>
+                {suggestion}
+              </span>
             </div>
           ))}
         </div>

@@ -88,17 +88,6 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading, hideSuggesti
       <div style={{ position: 'relative' }} ref={dropdownRef}>
         {/* Main search row */}
         <form onSubmit={handleSubmit} style={{ position: 'relative' }}>
-          {/* Search icon */}
-          <div style={{
-            position: 'absolute', left: '18px', top: '50%', transform: 'translateY(-50%)',
-            pointerEvents: 'none', color: focused ? '#14b8a6' : '#94a3b8', transition: 'color 0.2s',
-            zIndex: 10,
-          }}>
-            <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="9" cy="9" r="6.5" stroke="currentColor" strokeWidth="2" />
-              <path d="M14 14l3.5 3.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-          </div>
 
           <input
             type="text"
@@ -106,28 +95,39 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading, hideSuggesti
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onFocus={() => setFocused(true)}
+            onBlur={() => setTimeout(() => setFocused(false), 200)}
             onKeyDown={handleKeyDown}
             placeholder="Search food…"
             disabled={isLoading}
             style={{
               width: '100%',
-              padding: '16px 180px 16px 48px',
-              fontSize: '15px',
+              padding: '18px 180px 18px 56px',
+              fontSize: '16px',
               fontWeight: '500',
               color: '#0f172a',
-              background: focused ? '#fff' : 'rgba(255,255,255,0.8)',
-              border: `2px solid ${focused ? '#34d399' : '#e2e8f0'}`,
-              borderRadius: '18px',
+              background: focused ? '#fff' : 'rgba(255,255,255,0.6)',
+              border: `1px solid ${focused ? '#10b981' : '#e2e8f0'}`,
+              borderRadius: '20px',
               outline: 'none',
               boxSizing: 'border-box',
-              backdropFilter: 'blur(8px)',
+              backdropFilter: 'blur(12px)',
               boxShadow: focused
-                ? '0 0 0 4px rgba(52,211,153,0.12), 0 4px 20px rgba(0,0,0,0.06)'
-                : '0 2px 8px rgba(0,0,0,0.04)',
-              transition: 'all 0.2s ease',
+                ? '0 0 0 4px rgba(16,185,129,0.08), 0 10px 30px -10px rgba(0,0,0,0.08)'
+                : '0 2px 8px rgba(0,0,0,0.02)',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
               opacity: isLoading ? 0.7 : 1,
             }}
           />
+          <div style={{
+            position: 'absolute', left: '20px', top: '50%', transform: 'translateY(-50%)',
+            color: focused ? '#10b981' : '#94a3b8', transition: 'color 0.3s',
+            pointerEvents: 'none', display: 'flex'
+          }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </div>
 
           {/* Clear button */}
           {query && !isLoading && (
@@ -153,27 +153,27 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading, hideSuggesti
             disabled={!canSubmit}
             style={{
               position: 'absolute', right: '6px', top: '6px', bottom: '6px',
-              padding: '0 22px',
+              padding: '0 24px',
               background: canSubmit
-                ? 'linear-gradient(135deg, #34d399, #14b8a6)'
-                : '#e2e8f0',
+                ? 'linear-gradient(135deg, #10b981, #059669)'
+                : '#f1f5f9',
               color: canSubmit ? '#fff' : '#94a3b8',
               border: 'none',
-              borderRadius: '13px',
-              fontSize: '14px',
+              borderRadius: '14px',
+              fontSize: '15px',
               fontWeight: '700',
               cursor: canSubmit ? 'pointer' : 'not-allowed',
-              display: 'flex', alignItems: 'center', gap: '7px',
-              boxShadow: canSubmit ? '0 3px 12px rgba(20,184,166,0.35)' : 'none',
-              transition: 'all 0.2s',
+              display: 'flex', alignItems: 'center', gap: '8px',
+              boxShadow: canSubmit ? '0 4px 12px rgba(16,185,129,0.25)' : 'none',
+              transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
               whiteSpace: 'nowrap',
-              letterSpacing: '0.02em',
+              letterSpacing: '0.01em',
               zIndex: 10,
             }}
           >
             {isLoading ? (
               <>
-                <svg style={{ animation: 'spin 1s linear infinite' }} width="15" height="15" viewBox="0 0 24 24" fill="none">
+                <svg className="spin" width="16" height="16" viewBox="0 0 24 24" fill="none">
                   <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.3" />
                   <path d="M4 12a8 8 0 018-8" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
                 </svg>
@@ -181,9 +181,8 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading, hideSuggesti
               </>
             ) : (
               <>
-                <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
-                  <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" />
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
                 </svg>
                 <span className="search-btn-label">Analyze</span>
               </>

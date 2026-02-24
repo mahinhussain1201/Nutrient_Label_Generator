@@ -102,40 +102,41 @@ const NutritionLabel: React.FC<NutritionLabelProps> = ({ data, showAlert }) => {
         gap: '12px',
       }}>
         <div>
-          {/* eyebrow */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-            <div style={{ width: '4px', height: '14px', background: '#14b8a6', borderRadius: '4px' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+            <div style={{ width: '3px', height: '14px', background: '#10b981', borderRadius: '4px' }} />
             <p style={{
               margin: 0, fontSize: '11px', fontWeight: '800',
-              color: '#94a3b8', letterSpacing: '0.1em', textTransform: 'uppercase',
+              color: '#64748b', letterSpacing: '0.08em', textTransform: 'uppercase',
             }}>
               {isMultiple ? 'Recipe Analysis' : 'Food Analysis'}
             </p>
           </div>
           <h2 style={{ 
-            margin: '0 0 4px', 
-            fontSize: '24px', 
-            fontWeight: '900', 
+            margin: '0 0 6px', 
+            fontSize: '28px', 
+            fontWeight: '800', 
             color: '#0f172a',
-            textTransform: 'capitalize'
+            textTransform: 'capitalize',
+            letterSpacing: '-0.02em',
+            lineHeight: 1.2
           }}>
             {getTitle()}
           </h2>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{
               fontSize: '11px',
               fontWeight: '800',
-              color: '#14b8a6',
+              color: '#059669',
               textTransform: 'uppercase',
-              letterSpacing: '0.05em',
-              background: '#f0fdfa',
-              padding: '2px 8px',
-              borderRadius: '6px',
-              border: '1px solid #ccfbf1'
+              letterSpacing: '0.04em',
+              background: '#ecfdf5',
+              padding: '3px 10px',
+              borderRadius: '7px',
+              border: '1px solid #d1fae5'
             }}>
               Nutrition Facts
             </span>
-            <span style={{ fontSize: '13px', fontWeight: '600', color: '#64748b' }}>
+            <span style={{ fontSize: '13px', fontWeight: '600', color: '#94a3b8' }}>
               • {isMultiple ? 'Normalized per 100g' : `${(data as NutritionData).quantity_g}g serving`}
             </span>
           </div>
@@ -182,33 +183,33 @@ const NutritionLabel: React.FC<NutritionLabelProps> = ({ data, showAlert }) => {
       {/* ── Calories hero block ── */}
       {calories && (
         <div style={{
-          background: 'linear-gradient(135deg, #f0fdfa, #f0f9ff)',
-          border: '1.5px solid #ccfbf1',
-          borderRadius: '20px',
-          padding: '20px 24px',
-          marginBottom: '24px',
+          background: 'white',
+          border: '1px solid #e2e8f0',
+          borderRadius: '24px',
+          padding: '24px 28px',
+          marginBottom: '32px',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          gap: '16px',
+          boxShadow: '0 4px 20px -5px rgba(0,0,0,0.05)',
         }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
-              <span style={{ fontSize: '16px' }}>🔥</span>
-              <p style={{ margin: 0, fontSize: '12px', fontWeight: '800', color: '#0d9488', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                Calories
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+              <span style={{ fontSize: '18px' }}>🔥</span>
+              <p style={{ margin: 0, fontSize: '13px', fontWeight: '800', color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                Energy Content
               </p>
             </div>
-            <p style={{ margin: 0, fontSize: '12px', color: '#64748b', fontWeight: '500' }}>
-              {isMultiple ? 'Per 100g' : 'Per serving'}
+            <p style={{ margin: 0, fontSize: '14px', color: '#64748b', fontWeight: '500' }}>
+              Estimated {isMultiple ? 'per 100g' : 'per serving'}
             </p>
           </div>
           <div style={{ textAlign: 'right' }}>
-            <p style={{ margin: 0, fontSize: '48px', fontWeight: '900', color: '#0f172a', lineHeight: 1 }}>
+            <p style={{ margin: 0, fontSize: '52px', fontWeight: '800', color: '#0f172a', lineHeight: 1, letterSpacing: '-0.02em' }}>
               {Math.round(calories.amount)}
             </p>
-            <p style={{ margin: 0, fontSize: '11px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-              kcal
+            <p style={{ margin: 0, fontSize: '12px', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: '4px' }}>
+              Calories
             </p>
           </div>
         </div>
@@ -237,45 +238,51 @@ const NutritionLabel: React.FC<NutritionLabelProps> = ({ data, showAlert }) => {
 
         {visibleNutrients.map((nutrient, index) => {
           const meta = getMeta(nutrient.name);
-          const isLast = index === visibleNutrients.length - 1;
-
+          
           return (
             <div
               key={index}
               style={{
-                padding: '10px 4px',
-                borderBottom: isLast ? 'none' : '1px solid #f8fafc',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '14px 20px',
+                border: '1px solid #f1f5f9',
+                borderRadius: '16px',
+                backgroundColor: '#ffffff',
+                marginBottom: '10px',
+                transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                boxShadow: '0 2px 8px -2px rgba(15,23,42,0.04)',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.borderColor = '#e2e8f0';
+                e.currentTarget.style.transform = 'translateY(-1.5px)';
+                e.currentTarget.style.boxShadow = '0 12px 20px -8px rgba(15,23,42,0.08)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.borderColor = '#f1f5f9';
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 2px 8px -2px rgba(15,23,42,0.04)';
               }}
             >
-              {/* Row */}
-              <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '12px 16px',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '12px',
-                    backgroundColor: '#ffffff',
-                    boxShadow: '0 2px 6px rgba(0,0,0,0.05)'
-                  }}
-                >
-                
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  
-                  <span style={{ fontSize: '14px', fontWeight: '600', color: '#1e293b' }}>
-                    {formatName(nutrient.name)}
-                  </span>
-                </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{ 
+                  width: '8px', height: '8px', borderRadius: '50%', 
+                  background: meta.color, opacity: 0.8,
+                  boxShadow: `0 0 10px ${meta.color}40`
+                }} />
+                <span style={{ fontSize: '15px', fontWeight: '600', color: '#334155', letterSpacing: '-0.01em' }}>
+                  {formatName(nutrient.name)}
+                </span>
+              </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{
-                    fontSize: '14px', fontWeight: '800', color: meta.color,
-                    minWidth: '80px', textAlign: 'right',
-                  }}>
-                    {formatAmount(nutrient.amount, nutrient.unit)}
-                  </span>
-                </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{
+                  fontSize: '15px', fontWeight: '700', color: '#1e293b',
+                  minWidth: '80px', textAlign: 'right',
+                }}>
+                  {formatAmount(nutrient.amount, nutrient.unit)}
+                </span>
               </div>
             </div>
           );
