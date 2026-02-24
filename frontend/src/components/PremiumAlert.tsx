@@ -42,22 +42,22 @@ const ACCENT = {
 const PremiumAlert: React.FC<PremiumAlertProps> = ({ alert, onClose }) => {
   const [isVisible, setIsVisible] = useState(false);
 
+  const handleClose = React.useCallback(() => {
+    setIsVisible(false);
+    setTimeout(onClose, 300);
+  }, [onClose]);
+
   useEffect(() => {
     if (alert) {
-      setIsVisible(true);
+      setTimeout(() => setIsVisible(true), 0);
       if (alert.type === 'success') {
         const timer = setTimeout(() => handleClose(), 3000);
         return () => clearTimeout(timer);
       }
     } else {
-      setIsVisible(false);
+      setTimeout(() => setIsVisible(false), 0);
     }
-  }, [alert]);
-
-  const handleClose = () => {
-    setIsVisible(false);
-    setTimeout(onClose, 300);
-  };
+  }, [alert, handleClose]);
 
   if (!alert && !isVisible) return null;
 

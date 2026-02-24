@@ -47,11 +47,14 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
     }, 200);
 
     return () => clearTimeout(timer);
-  }, [value]);
+  }, [value, focused]);
 
   useEffect(() => {
     if (focused && suggestions.length > 0) {
-      setShowSuggestions(true);
+      const timer = setTimeout(() => {
+        setShowSuggestions(true);
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [focused, suggestions]);
 

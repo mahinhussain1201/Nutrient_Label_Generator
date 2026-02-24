@@ -27,10 +27,13 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading, hideSuggesti
       }
     }, 200);
     return () => clearTimeout(timer);
-  }, [query]);
+  }, [query, focused]);
 
   useEffect(() => {
-    if (focused && suggestions.length > 0) setShowSuggestions(true);
+      const timer = setTimeout(() => {
+          if (focused && suggestions.length > 0) setShowSuggestions(true);
+      }, 0);
+      return () => clearTimeout(timer);
   }, [focused, suggestions]);
 
   useEffect(() => {

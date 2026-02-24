@@ -65,7 +65,9 @@ function App() {
     try {
       const saved = localStorage.getItem('nutritionSearchHistory');
       if (saved) setSearchHistory(JSON.parse(saved));
-    } catch {}
+    } catch (error) {
+      console.error('Failed to retrieve search history:', error);
+    }
   }, []);
 
   useEffect(() => {
