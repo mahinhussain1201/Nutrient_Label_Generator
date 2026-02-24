@@ -107,7 +107,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading, hideSuggesti
             onChange={(e) => setQuery(e.target.value)}
             onFocus={() => setFocused(true)}
             onKeyDown={handleKeyDown}
-            placeholder="Search food or list ingredients…"
+            placeholder="Search food…"
             disabled={isLoading}
             style={{
               width: '100%',
@@ -225,7 +225,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading, hideSuggesti
       </div>
 
       {/* Bottom row: tip + suggestions */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', padding: '0 4px', flexWrap: 'wrap' }}>
+      {/* <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', padding: '0 4px', flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
           <span style={{
             fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.06em',
@@ -235,7 +235,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading, hideSuggesti
           }}>Tip</span>
           <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '500' }}>Separate ingredients with commas</span>
         </div>
-      </div>
+      </div> */}
 
       <style>{`
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }

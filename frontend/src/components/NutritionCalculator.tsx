@@ -246,7 +246,7 @@ const NutritionCalculator: React.FC<NutritionCalculatorProps> = ({ showAlert }) 
                   isLoading={rowLoading[index]}
                   isInvalid={invalidRows[index]}
                   hideSuggestions={!!disambiguationOptions[index]?.length}
-                  placeholder="e.g. skinless chicken breast…"
+                  placeholder="e.g. rice, wheat…"
                   style={{ ...inputStyle, paddingRight: '44px' }}
                   focusStyle={focusStyle}
                   blurStyle={blurStyle}
@@ -267,7 +267,7 @@ const NutritionCalculator: React.FC<NutritionCalculatorProps> = ({ showAlert }) 
                     onBlur={e => Object.assign(e.target.style, blurStyle)}
                   />
                 </div>
-                <span className="unit-label" style={{ fontSize: '12px', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.04em' }}>g</span>
+                <span className="unit-label" style={{ fontSize: '12px', fontWeight: '800', color: '#94a3b8', textTransform: 'none', letterSpacing: '0.04em' }}>g</span>
               </div>
 
               {/* Remove */}

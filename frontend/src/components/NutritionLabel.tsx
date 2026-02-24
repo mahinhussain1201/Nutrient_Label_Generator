@@ -7,29 +7,29 @@ interface NutritionLabelProps {
   showAlert: (options: AlertOptions) => void;
 }
 
-const NUTRIENT_META: Record<string, { color: string; bg: string; icon: string }> = {
-  'Energy':        { color: '#ea580c', bg: '#fff7ed', icon: '🔥' },
-  'Protein':       { color: '#0284c7', bg: '#f0f9ff', icon: '💪' },
-  'Total lipid':   { color: '#ca8a04', bg: '#fefce8', icon: '🫙' },
-  'Carbohydrate':  { color: '#16a34a', bg: '#f0fdf4', icon: '🌾' },
-  'Fiber':         { color: '#15803d', bg: '#f0fdf4', icon: '🌿' },
-  'Sugars':        { color: '#db2777', bg: '#fdf2f8', icon: '🍬' },
-  'Fatty acids':   { color: '#b45309', bg: '#fffbeb', icon: '🧈' },
-  'Cholesterol':   { color: '#9333ea', bg: '#faf5ff', icon: '❤️' },
-  'Sodium':        { color: '#0891b2', bg: '#ecfeff', icon: '🧂' },
-  'Calcium':       { color: '#7c3aed', bg: '#faf5ff', icon: '🦴' },
-  'Iron':          { color: '#b91c1c', bg: '#fef2f2', icon: '⚙️' },
-  'Potassium':     { color: '#065f46', bg: '#ecfdf5', icon: '🍌' },
-  'Vitamin C':     { color: '#d97706', bg: '#fffbeb', icon: '🍊' },
-  'Vitamin A':     { color: '#c2410c', bg: '#fff7ed', icon: '🥕' },
+const NUTRIENT_META: Record<string, { color: string; bg: string }> = {
+  'Energy':        { color: '#ea580c', bg: '#fff7ed' },
+  'Protein':       { color: '#0284c7', bg: '#f0f9ff' },
+  'Total lipid':   { color: '#ca8a04', bg: '#fefce8' },
+  'Carbohydrate':  { color: '#16a34a', bg: '#f0fdf4' },
+  'Fiber':         { color: '#15803d', bg: '#f0fdf4' },
+  'Sugars':        { color: '#db2777', bg: '#fdf2f8' },
+  'Fatty acids':   { color: '#b45309', bg: '#fffbeb' },
+  'Cholesterol':   { color: '#9333ea', bg: '#faf5ff'},
+  'Sodium':        { color: '#0891b2', bg: '#ecfeff' },
+  'Calcium':       { color: '#7c3aed', bg: '#faf5ff' },
+  'Iron':          { color: '#b91c1c', bg: '#fef2f2' },
+  'Potassium':     { color: '#065f46', bg: '#ecfdf5' },
+  'Vitamin C':     { color: '#d97706', bg: '#fffbeb' },
+  'Vitamin A':     { color: '#c2410c', bg: '#fff7ed' },
 };
 
 const getMeta = (name: string) => {
-  if (!name) return { color: '#475569', bg: '#f8fafc', icon: '•' };
+  if (!name) return { color: '#475569', bg: '#f8fafc' };
   for (const [key, val] of Object.entries(NUTRIENT_META)) {
     if (name.includes(key)) return val;
   }
-  return { color: '#475569', bg: '#f8fafc', icon: '•' };
+  return { color: '#475569', bg: '#f8fafc' };
 };
 
 const formatName = (name: string): string =>
@@ -248,24 +248,26 @@ const NutritionLabel: React.FC<NutritionLabelProps> = ({ data, showAlert }) => {
               }}
             >
               {/* Row */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                {/* Left: icon + name */}
+              <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '12px 16px',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '12px',
+                    backgroundColor: '#ffffff',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.05)'
+                  }}
+                >
+                
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <div style={{
-                    width: '30px', height: '30px', borderRadius: '9px',
-                    background: meta.bg,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '14px', flexShrink: 0,
-                    border: `1px solid ${meta.color}18`,
-                  }}>
-                    {meta.icon}
-                  </div>
+                  
                   <span style={{ fontSize: '14px', fontWeight: '600', color: '#1e293b' }}>
                     {formatName(nutrient.name)}
                   </span>
                 </div>
 
-                {/* Right: amount + DV% */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span style={{
                     fontSize: '14px', fontWeight: '800', color: meta.color,
