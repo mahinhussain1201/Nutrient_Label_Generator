@@ -110,7 +110,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => {
             disabled={isLoading}
             style={{
               width: '100%',
-              padding: '16px 140px 16px 48px',
+              padding: '16px 180px 16px 48px',
               fontSize: '15px',
               fontWeight: '500',
               color: '#0f172a',
@@ -135,7 +135,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => {
               className="search-clear-btn"
               onClick={() => { setQuery(''); setSuggestions([]); setShowSuggestions(false); }}
               style={{
-                position: 'absolute', right: '108px', top: '50%', transform: 'translateY(-50%)',
+                position: 'absolute', right: '144px', top: '50%', transform: 'translateY(-50%)',
                 background: '#f1f5f9', border: 'none', borderRadius: '50%',
                 width: '22px', height: '22px', cursor: 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -242,7 +242,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => {
         /* Responsive: shrink input padding and button on small screens */
         @media (max-width: 480px) {
           .search-input {
-            padding: 13px 90px 13px 44px !important;
+            padding: 13px 100px 13px 44px !important;
             font-size: 14px !important;
             border-radius: 14px !important;
           }
@@ -250,12 +250,13 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => {
             padding: 0 12px !important;
             font-size: 13px !important;
             border-radius: 10px !important;
+            right: 6px !important;
           }
           .search-btn-label {
             display: none;
           }
           .search-clear-btn {
-            right: 72px !important;
+            right: 68px !important;
           }
         }
 

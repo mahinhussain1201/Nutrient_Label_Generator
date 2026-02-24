@@ -436,19 +436,20 @@ function App() {
              padding: 4px 8px !important;
              font-size: 10px !important;
           }
-          .search-input {
-            padding: 14px 100px 14px 44px !important;
-            font-size: 14px !important;
+          .nutrition-facts-card {
+            padding: 16px !important;
           }
-          .search-submit-btn {
-            padding: 0 16px !important;
-            font-size: 12px !important;
+          .label-title {
+            font-size: 20px !important;
           }
-          .search-submit-btn span {
-            display: none;
+          .calories-block p:last-child {
+            font-size: 28px !important;
           }
-          .search-clear-btn {
-            right: 84px !important;
+          .label-copy-btn {
+             top: 10px !important;
+             right: 10px !important;
+             padding: 4px 8px !important;
+             font-size: 10px !important;
           }
         }
 
