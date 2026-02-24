@@ -79,6 +79,16 @@ const NutritionLabel: React.FC<NutritionLabelProps> = ({ data, showAlert }) => {
 
   const calories = nutrientList.find(n => n.name && n.name.includes('Energy'));
 
+  const getTitle = () => {
+    if (!isMultiple) return (data as NutritionData).ingredient || 'Item';
+    const names = multiData?.ingredients?.map(ing => ing.ingredient) || [];
+    if (names.length === 0) return 'Recipe Totals';
+    if (names.length === 1) return names[0];
+    if (names.length === 2) return `${names[0]} & ${names[1]}`;
+    if (names.length === 3) return `${names[0]}, ${names[1]} & ${names[2]}`;
+    return `${names[0]}, ${names[1]} & ${names.length - 2} more`;
+  };
+
   const copyToClipboard = () => {
     const header = isMultiple ? `Recipe Profile (Per 100g)` : `Nutrition Facts: ${(data as NutritionData).ingredient || 'Item'}`;
     const weight = isMultiple ? `Total Weight: ${multiData?.total_weight_g}g` : `Serving Size: ${(data as NutritionData).quantity_g}g`;
@@ -117,14 +127,33 @@ const NutritionLabel: React.FC<NutritionLabelProps> = ({ data, showAlert }) => {
               {isMultiple ? 'Recipe Analysis' : 'Food Analysis'}
             </p>
           </div>
-          <h2 style={{ margin: '0 0 4px', fontSize: '22px', fontWeight: '900', color: '#0f172a' }}>
-            Nutrition Facts
+          <h2 style={{ 
+            margin: '0 0 4px', 
+            fontSize: '24px', 
+            fontWeight: '900', 
+            color: '#0f172a',
+            textTransform: 'capitalize'
+          }}>
+            {getTitle()}
           </h2>
-          <p style={{ margin: 0, fontSize: '13px', fontWeight: '600', color: '#64748b' }}>
-            {isMultiple
-              ? `Recipe Totals · normalized per 100g`
-              : `${(data as NutritionData).ingredient} · ${(data as NutritionData).quantity_g}g serving`}
-          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{
+              fontSize: '11px',
+              fontWeight: '800',
+              color: '#14b8a6',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              background: '#f0fdfa',
+              padding: '2px 8px',
+              borderRadius: '6px',
+              border: '1px solid #ccfbf1'
+            }}>
+              Nutrition Facts
+            </span>
+            <span style={{ fontSize: '13px', fontWeight: '600', color: '#64748b' }}>
+              • {isMultiple ? 'Normalized per 100g' : `${(data as NutritionData).quantity_g}g serving`}
+            </span>
+          </div>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
