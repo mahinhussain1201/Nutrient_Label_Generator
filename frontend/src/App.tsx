@@ -106,10 +106,10 @@ function App() {
           <div className="search-tab-content">
             <div className="search-card">
               <SearchBar 
-              onSearch={handleSearch} 
-              isLoading={isLoading} 
-              hideSuggestions={searchChoices.length > 0}
-            />
+                onSearch={handleSearch} 
+                isLoading={isLoading} 
+                hideSuggestions={searchChoices.length > 0}
+              />
               {/* Recent searches */}
               {searchHistory.length > 0 && (
                 <div className="history-section">

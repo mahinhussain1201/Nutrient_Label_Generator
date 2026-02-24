@@ -245,6 +245,7 @@ const NutritionCalculator: React.FC<NutritionCalculatorProps> = ({ showAlert }) 
                   onSearch={() => handleRowSearch(index)}
                   isLoading={rowLoading[index]}
                   isInvalid={invalidRows[index]}
+                  hideSuggestions={!!disambiguationOptions[index]?.length}
                   placeholder="e.g. skinless chicken breast…"
                   style={{ ...inputStyle, paddingRight: '44px' }}
                   focusStyle={focusStyle}
