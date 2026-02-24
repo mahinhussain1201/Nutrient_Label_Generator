@@ -4,3 +4,4 @@ nutrient.json
 backend/env
 .DS_Store
 backend/.DS_Store
+database.txt

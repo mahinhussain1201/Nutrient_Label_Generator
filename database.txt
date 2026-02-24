@@ -1,0 +1,41 @@
+# Nutrient Dataset Analysis Report (nutrient.json)
+
+## Dataset Overview
+- **File Name**: nutrient.json
+- **Format**: JSON Lines (JSONL) - Each line is a separate JSON object.
+- **Total Lines**: ~5.69 million entries.
+- **Size**: ~3.5 GB.
+
+## Data Structure
+Each entry in the dataset represents a specific nutrient profile for a food item part. Below are the key fields found in each record:
+
+### Core Identifiers
+- `id`: Primary key for the entry.
+- `food_id`: Reference ID for the food item.
+- `source_id` / `source_type`: Metadata about the data source.
+
+### Food Description
+- `orig_food_common_name`: Common name of the food (e.g., "Kiwi", "Onion", "Chives").
+- `orig_food_scientific_name`: Botanical/Scientific name (e.g., "Actinidia chinensis PLANCHON").
+- `orig_food_part`: The specific part of the plant/food analyzed (e.g., "Fruit", "Leaf", "Seed", "Bulb", "Root").
+
+### Nutritional Data
+- `orig_source_name`: The nutrient name (e.g., "FAT", "WATER", "PROTEIN").
+- `orig_content`: The primary numerical value for the nutrient content.
+- `orig_min` / `orig_max`: The range of observed values.
+- `orig_unit`: The unit of measurement (standardized to "mg/100 g" in many entries).
+- `standard_content`: Standardized numerical value for easier computation.
+
+### Metadata & Context
+- `preparation_type`: State of the food when analyzed (e.g., "raw", "other", "tea or coffee").
+- `citation` / `citation_type`: Reference source for the data (e.g., "DUKE").
+- `created_at` / `updated_at`: Timestamps for record management.
+
+## Key Insights for Development
+1. **Searchability**: The `orig_food_common_name` and `orig_food_scientific_name` are the primary keys for user-facing search.
+2. **Granularity**: The `orig_food_part` field is critical for precise calculations (e.g., fat content in a "Seed" vs. "Leaf" of the same plant can differ significantly).
+3. **Units**: Most numerical data is based on a 100g sample size, which is a standard for nutritional labeling.
+4. **Volume**: Due to the 3.5GB size, direct file reading is inefficient for real-time lookups; an indexed database (like SQLite or PostgreSQL) or a specialized search index is recommended for the application.
+
+---
+*This report was generated to assist in understanding the underlying data structure of the Nutritional Label Generator project.*

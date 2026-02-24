@@ -12,6 +12,7 @@ interface AutocompleteInputProps {
   onSearch?: () => void;
   isLoading?: boolean;
   isInvalid?: boolean;
+  hideSuggestions?: boolean;
 }
 
 const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
@@ -25,6 +26,7 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
   onSearch,
   isLoading,
   isInvalid,
+  hideSuggestions,
 }) => {
   const [focused, setFocused] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -130,7 +132,7 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
         }} />
       )}
 
-      {showSuggestions && (
+      {showSuggestions && !hideSuggestions && (
         <div style={{
           position: 'absolute', top: 'calc(100% + 4px)', left: 0, right: 0,
           background: '#fff', borderRadius: '14px', border: '1px solid #e2e8f0',

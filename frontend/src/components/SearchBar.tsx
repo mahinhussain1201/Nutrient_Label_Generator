@@ -4,9 +4,10 @@ import { fetchSuggestions } from '../utils/api';
 interface SearchBarProps {
   onSearch: (query: string) => void;
   isLoading: boolean;
+  hideSuggestions?: boolean;
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => {
+const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading, hideSuggestions }) => {
   const [query, setQuery] = useState('');
   const [focused, setFocused] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -191,7 +192,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => {
         </form>
 
         {/* Suggestions Dropdown */}
-        {showSuggestions && !isLoading && (
+        {showSuggestions && !isLoading && !hideSuggestions && (
           <div style={{
             position: 'absolute', top: 'calc(100% + 8px)', left: 0, right: 0,
             background: '#fff', borderRadius: '18px', border: '1px solid #e2e8f0',
