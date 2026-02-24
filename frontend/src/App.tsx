@@ -87,7 +87,7 @@ function App() {
             <span className="wordmark-icon">◈</span>
             <span className="wordmark-text">Nutritive</span>
           </div>
-          <p className="site-tagline">Precision nutrition intelligence</p>
+          <p className="site-tagline">nutrition calculator</p>
         </div>
       </header>
 
