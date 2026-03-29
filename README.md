@@ -1,108 +1,103 @@
 # Nutritional Label Generator
 
-A full-stack web application that generates nutritional labels for food items using Flask, PostgreSQL with JSONB, and React with TypeScript.
+A professional-grade, full-stack application for generating accurate nutritional labels for single food items or complex recipes. Built with a modern tech stack, it features high-performance search, fuzzy matching, and data-driven nutrition calculations.
 
-## Features
+---
 
-- Search for nutritional information by food name
-- View detailed nutrition facts
-- Combine multiple ingredients to get combined nutritional information
-- Clean, responsive UI
+## ✨ Features
 
-## Prerequisites
+- **🔍 Intelligent Search**: Autocomplete and fuzzy matching for thousands of food items.
+- **🧪 Data-Driven**: Prioritizes high-quality data sources (USDA, DTU, DUKE) for maximum accuracy.
+- **🍳 Recipe Calculator**: Aggregate nutritional data for multiple ingredients, automatically normalized to per 100g.
+- **⚡ Performance**: Optimized backend with PostgreSQL trigram similarity and LRU caching.
+- **💎 Premium UI**: Modern, responsive interface built with React, Tailwind CSS, and Framer Motion.
+- **🔄 Smart Synonyms**: Handles common food name variations (e.g., "brinjal" ↔ "eggplant").
 
-- Python 3.8+
-- Node.js 16+
-- PostgreSQL 12+
-- npm or yarn
+---
 
-## Backend Setup
+## 🛠️ Tech Stack
 
-1. Navigate to the backend directory:
+### Frontend
+- **Framework**: [React 19](https://react.dev/)
+- **Build Tool**: [Vite](https://vitejs.dev/)
+- **Language**: [TypeScript](https://www.typescriptlang.org/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **Animations**: [Framer Motion](https://www.framer.com/motion/)
+
+### Backend
+- **Framework**: [Flask](https://flask.palletsprojects.com/)
+- **Database**: [PostgreSQL](https://www.postgresql.org/)
+- **Language**: [Python 3.x](https://www.python.org/)
+- **Key Libraries**: `psycopg2`, `python-dotenv`, `flask-cors`
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js (v18+)
+- Python (v3.9+)
+- PostgreSQL
+
+### 📦 Installation
+
+1. **Clone the repository**:
+   ```bash
+   git clone <repository-url>
+   cd "Nutritional Label Generator"
+   ```
+
+2. **Backend Setup**:
    ```bash
    cd backend
-   ```
-
-2. Create a virtual environment and activate it:
-   ```bash
    python -m venv venv
-   source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-   ```
-
-3. Install Python dependencies:
-   ```bash
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
    pip install -r requirements.txt
    ```
+   *Note: Ensure you have a `.env` file with your database credentials.*
 
-4. Create a `.env` file in the backend directory with your database credentials:
-   ```env
-   DB_NAME=nutrition_db
-   DB_USER=your_username
-   DB_PASSWORD=your_password
-   DB_HOST=localhost
-   DB_PORT=5432
-   FLASK_ENV=development
-   ```
-
-5. Set up your PostgreSQL database:
-   ```sql
-   CREATE DATABASE nutrition_db;
-   
-   -- Connect to the database
-   \c nutrition_db
-   
-   -- Create a table for food data
-   CREATE TABLE foods (
-       id SERIAL PRIMARY KEY,
-       data JSONB NOT NULL
-   );
-   
-   -- Create an index for better performance on food name searches
-   CREATE INDEX idx_food_name ON foods USING GIN ((data->'food_name') jsonb_path_ops);
-   ```
-
-6. Run the Flask development server:
+3. **Frontend Setup**:
    ```bash
-   python app.py
-   ```
-   The API will be available at `http://localhost:5000`
-
-## Frontend Setup
-
-1. Navigate to the frontend directory:
-   ```bash
-   cd frontend
-   ```
-
-2. Install Node.js dependencies:
-   ```bash
+   cd ../frontend
    npm install
    ```
 
-3. Start the development server:
+### 🏃 Running the Project
+
+1. **Start the Backend**:
    ```bash
+   cd backend
+   python app.py
+   ```
+   *Runs on `http://localhost:5000`*
+
+2. **Start the Frontend**:
+   ```bash
+   cd frontend
    npm run dev
    ```
-   The frontend will be available at `http://localhost:5173`
+   *Runs on `http://localhost:5173`*
 
-## API Endpoints
+---
 
-- `GET /api/nutrition?food=<food_name>` - Get nutrition for a single food item
-- `GET /api/nutrition?ingredient_list=<ingredient1,ingredient2,...>` - Get combined nutrition for multiple ingredients
+## 🔌 API Documentation
 
-## Project Structure
+| Endpoint | Method | Description |
+| :--- | :--- | :--- |
+| `/api/search/suggestions` | `GET` | Autocomplete suggestions for food names |
+| `/api/search/fuzzy` | `GET` | Fuzzy search for food names |
+| `/api/nutrition/single` | `GET` | Nutrition data for a single ingredient |
+| `/api/nutrition/multiple` | `POST` | Aggregated nutrition for multiple ingredients |
 
-```
-.
-├── backend/               # Flask backend
-│   ├── app.py            # Main application file
-│   └── requirements.txt   # Python dependencies
-├── frontend/             # React frontend
-│   ├── public/           # Static files
-│   └── src/              # Source files
-└── README.md             # This file
-```
+---
 
-## License
+## 🏗️ Architecture
 
-MIT
+The project follows a standard client-server architecture:
+- **Client**: A React SPA that handles user interactions, recipe state, and dynamic rendering of nutritional labels.
+- **Server**: A Flask API that interfaces with a PostgreSQL database containing structured nutritional data in JSONB format.
+- **Database**: Uses trigram similarity for efficient fuzzy searching and complex aggregations for recipe calculations.
+
+---
+
+**Developed with ❤️ by [Mahin Hussain](https://github.com/mahinhussain1201)**
